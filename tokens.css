@@ -1,0 +1,135 @@
+/* Hallmark · macrostructure: Workbench · tone: technical · anchor hue: tungsten 68
+ * theme: custom (vibe: "night lab training computer"
+ *   paper oklch(21% 0.038 252) · accent oklch(78% 0.13 68) tungsten
+ *   Oxanium + Chivo + Chivo Mono)
+ * genre: atmospheric · audience: terminal beginners · use: complete file missions
+ * enrichment: none · nav: taskbar (OS chrome) · footer: none
+ * pre-emit critique: P5 H4 E5 S5 R4 V4
+ */
+
+:root {
+  --navy-50: oklch(0.96 0.012 252);
+  --navy-100: oklch(0.91 0.018 252);
+  --navy-200: oklch(0.82 0.024 252);
+  --navy-300: oklch(0.68 0.03 252);
+  --navy-400: oklch(0.52 0.036 252);
+  --navy-500: oklch(0.4 0.04 252);
+  --navy-600: oklch(0.32 0.042 252);
+  --navy-700: oklch(0.26 0.04 252);
+  --navy-800: oklch(0.21 0.038 252);
+  --navy-900: oklch(0.16 0.032 252);
+  --navy-950: oklch(0.12 0.028 252);
+
+  --amber-400: oklch(0.84 0.12 68);
+  --amber-500: oklch(0.78 0.13 68);
+  --amber-600: oklch(0.68 0.14 62);
+  --amber-700: oklch(0.52 0.12 55);
+
+  --ok-500: oklch(0.72 0.12 150);
+  --warn-500: oklch(0.78 0.14 75);
+  --bad-500: oklch(0.64 0.18 25);
+
+  --bg: var(--navy-800);
+  --bg-deep: var(--navy-900);
+  --surface: oklch(0.26 0.034 252);
+  --surface-2: oklch(0.3 0.032 252);
+  --surface-3: oklch(0.34 0.03 252);
+  --ink: oklch(0.94 0.012 252);
+  --ink-dim: oklch(0.78 0.02 252);
+  --ink-mute: oklch(0.64 0.024 252);
+  --line: oklch(0.4 0.03 252 / 0.7);
+  --line-strong: oklch(0.55 0.04 252 / 0.8);
+  --accent: var(--amber-500);
+  --accent-ink: var(--navy-950);
+  --accent-soft: oklch(0.78 0.13 68 / 0.16);
+  --focus: var(--amber-400);
+  --ok: var(--ok-500);
+  --bad: var(--bad-500);
+  --term-bg: oklch(0.14 0.02 252);
+  --term-ink: oklch(0.9 0.04 95);
+  --term-dim: oklch(0.7 0.03 95);
+  --wallpaper-a: oklch(0.18 0.04 248);
+  --wallpaper-b: oklch(0.24 0.05 258);
+  --lamp: oklch(0.78 0.13 68 / 0.18);
+
+  --font-display: "Oxanium", "Chivo", system-ui, sans-serif;
+  --font-ui: "Chivo", system-ui, sans-serif;
+  --font-mono: "Chivo Mono", ui-monospace, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.45;
+  --leading-relaxed: 1.6;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+
+  --shadow-win: 0 18px 50px oklch(0.1 0.03 252 / 0.45);
+  --shadow-pop: 0 8px 24px oklch(0.1 0.03 252 / 0.35);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  --taskbar-h: 48px;
+  --titlebar-h: 36px;
+  --z-desktop: 1;
+  --z-window: 10;
+  --z-taskbar: 80;
+  --z-menu: 90;
+  --z-modal: 100;
+  --z-toast: 110;
+}
+
+[data-theme="light"] {
+  --bg: oklch(0.93 0.02 252);
+  --bg-deep: oklch(0.88 0.024 252);
+  --surface: oklch(0.97 0.01 252);
+  --surface-2: oklch(0.94 0.014 252);
+  --surface-3: oklch(0.9 0.018 252);
+  --ink: oklch(0.22 0.03 252);
+  --ink-dim: oklch(0.38 0.03 252);
+  --ink-mute: oklch(0.5 0.025 252);
+  --line: oklch(0.78 0.03 252 / 0.8);
+  --line-strong: oklch(0.62 0.04 252 / 0.85);
+  --accent: var(--amber-600);
+  --accent-ink: oklch(0.98 0.01 95);
+  --accent-soft: oklch(0.68 0.14 62 / 0.14);
+  --term-bg: oklch(0.96 0.012 95);
+  --term-ink: oklch(0.28 0.03 252);
+  --term-dim: oklch(0.45 0.02 252);
+  --wallpaper-a: oklch(0.86 0.03 250);
+  --wallpaper-b: oklch(0.9 0.025 240);
+  --lamp: oklch(0.78 0.13 68 / 0.12);
+  --shadow-win: 0 18px 40px oklch(0.4 0.03 252 / 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-micro: 1ms;
+    --dur-short: 120ms;
+    --dur-long: 150ms;
+  }
+}
