@@ -1,0 +1,6 @@
+# Skill script caches / agent runtime
+__pycache__/
+*.pyc
+.coverage
+.hallmark/log.json
+.DS_Store

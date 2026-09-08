@@ -1,0 +1,449 @@
+{
+  "version": 1,
+  "skills": {
+    "a11y": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/a11y/SKILL.md",
+      "computedHash": "cf58834d3c8193aa7412175bffbcd1f5b2fd7eedeb408c6dd9c31a84876298af"
+    },
+    "adapt": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/adapt/SKILL.md",
+      "computedHash": "ba0ba06c26bb7167998d28c4bf1c2d8c9cda0acc2c238c71bf7d130bf776ce1a"
+    },
+    "add-ui": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/add-ui/SKILL.md",
+      "computedHash": "55c60e7ac983b151d241f12b299080a81a70b5c0e895462a72262c66d7c52a2c"
+    },
+    "animate": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/animate/SKILL.md",
+      "computedHash": "cb49007a9831659061bf93f82708c68751eaa88ceecf671d18492db267437309"
+    },
+    "arrange": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/arrange/SKILL.md",
+      "computedHash": "2b664432b54b26fc0e7fc716eb8cff65bbfb74922e62c57246ce6ce8bb622928"
+    },
+    "atelier": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier/SKILL.md",
+      "computedHash": "2091c4fff635861dcece22d916532382139115d53be7a6a4afdcefdb4aab8847"
+    },
+    "atelier-components": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-components/SKILL.md",
+      "computedHash": "884760d5fa627679bbb45d4800f85d5e256e9ca4ccde07c1f6b8e065b2ada6c7"
+    },
+    "atelier-copy": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-copy/SKILL.md",
+      "computedHash": "7c8f5fbab11c5da23187200d519c51111f7735e0e5f9f52e41b4adc40beab378"
+    },
+    "atelier-data": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-data/SKILL.md",
+      "computedHash": "fb38c6a318e9cd4729069683b9062d4651a62bdfd3bf0b189526d6bb7eb8d6ce"
+    },
+    "atelier-dataviz": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-dataviz/SKILL.md",
+      "computedHash": "107da5b381e8ae87f438216fe2d3f356c17912d411a69cbe5624ea702deacc1b"
+    },
+    "atelier-direction": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-direction/SKILL.md",
+      "computedHash": "cef57d524da1ffcbf0fee059896efc094bd2a6092fc0ec2f230a8d91d7f2ed24"
+    },
+    "atelier-foundations": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-foundations/SKILL.md",
+      "computedHash": "8cb9d5f2698fa686a36ac0c54704698d41fae50f62f862351c0741cd2bf25716"
+    },
+    "atelier-harden": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-harden/SKILL.md",
+      "computedHash": "75885e11a7b84c77518b5f9f6797ee6b5f19ab294518c478a177c5424f0616a9"
+    },
+    "atelier-layout": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-layout/SKILL.md",
+      "computedHash": "56313416fa93853803436ef839f69f36945942ef10e4019e129c94bd354f5d4e"
+    },
+    "atelier-motion": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-motion/SKILL.md",
+      "computedHash": "64de5c0f956fcf42a4073952371efaabf2b37e4632eb940a9c355006670661e7"
+    },
+    "atelier-perf-a11y": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-perf-a11y/SKILL.md",
+      "computedHash": "11b9c2d96f9afe2af9212d7e9113100983741780c967b5d6d190793afb817164"
+    },
+    "atelier-redesign": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-redesign/SKILL.md",
+      "computedHash": "c6b71d9129063c7eb62f552b9e4bebad5b81d054d7c0041d13857f52d0521d5e"
+    },
+    "atelier-review": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-review/SKILL.md",
+      "computedHash": "6d1e0d7eef72aaac0dc191b9018852dd9bb2653e8e06ca4720a9301b299564c3"
+    },
+    "atelier-scroll": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-scroll/SKILL.md",
+      "computedHash": "439cd7d99888b04b598e5186e36e2eae00a59ce104be015b4212775fd4d5fd1c"
+    },
+    "atelier-typography": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-typography/SKILL.md",
+      "computedHash": "c93b1c74bb0bb9643be618836667c4009cf4a150afe6ca4be0b631a5ec9d68f5"
+    },
+    "atelier-ux": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-ux/SKILL.md",
+      "computedHash": "4cf9544f02a0a6c98a19f4a9917e2b3b2a7ddee758a555285b1bbac5e78fd0e0"
+    },
+    "atelier-webgl": {
+      "source": "luminary19/atelier",
+      "sourceType": "github",
+      "skillPath": "skills/atelier-webgl/SKILL.md",
+      "computedHash": "15b5618d60e210d828667cb3b383c59e7ba9e256f288d3d3a950087ec572df59"
+    },
+    "audit": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/audit/SKILL.md",
+      "computedHash": "6875ef913334513332ee311a7f30898b4fd161fa89dff65776a632e52300c18e"
+    },
+    "banner-design": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/banner-design/SKILL.md",
+      "computedHash": "82c86217829268afd1f86e89390270e35cb3a1761854a0bbe6180929614ae022"
+    },
+    "bolder": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/bolder/SKILL.md",
+      "computedHash": "7386374b2cbad74e0c5ad046b772d372e532c9747eafdf0808f21c339960f7af"
+    },
+    "brand": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/brand/SKILL.md",
+      "computedHash": "3c7acb846082f9e4cc873f1cf85bd57ade027206e18c7c050797f815e3a56af7"
+    },
+    "brandkit": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/brandkit/SKILL.md",
+      "computedHash": "b63012f3c3d21197e0185d3e9cc7ec40c589fb10e0b5a32a561739de31aa3f20"
+    },
+    "clarify": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/clarify/SKILL.md",
+      "computedHash": "0d70abf5f7269a0fbf44ae0e0e62a3a35878e1d5f55a2a7882cd4c060a5d9448"
+    },
+    "colorize": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/colorize/SKILL.md",
+      "computedHash": "d00eb7d774fc12441ca2930b945fc3b034e13774e827375a825b068e548fc6b9"
+    },
+    "critique": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/critique/SKILL.md",
+      "computedHash": "328d3ddd8610003062946ed08c29ffd95b3f3cefc52c92993235112a8b1b8bff"
+    },
+    "data-viz": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/data-viz/SKILL.md",
+      "computedHash": "ac67a00ea5a6dd39df41ca1713d2c63ca2f029d337795ce638dfb146ff071cc9"
+    },
+    "delight": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/delight/SKILL.md",
+      "computedHash": "5ba6f9ebcea62e7bb99f6dcdac196eb004b1434d304cd3f28aea6bab64343d58"
+    },
+    "depth": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/depth/SKILL.md",
+      "computedHash": "b9f0c36caec1fcb34d2761b60a430ea3916acd534eab18914fba83d350db50b0"
+    },
+    "design": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design/SKILL.md",
+      "computedHash": "4e0412d29df74e6153e4944b367459a28cf52e3e81c7f45c1ecf4c2a8b21907c"
+    },
+    "design-system": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-system/SKILL.md",
+      "computedHash": "a05715299135276628f53519484e1267ec8ad111e6355a09c2da1cf66aee2cc3"
+    },
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "6d838b246d0e35d0b53f4f23f98ba7a1dd561937e64f7d0c7553b0928e376c3e"
+    },
+    "design-taste-frontend-v1": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill-v1/SKILL.md",
+      "computedHash": "d704ab912c4d0ca954ffa858983da755ae4cd5cad9ba22554db5557382f5bd34"
+    },
+    "distill": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/distill/SKILL.md",
+      "computedHash": "e03fc0948608888fae29e1b07d8ab9dca6753763909a5ecf21551ce106f307ec"
+    },
+    "empty-state": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/empty-state/SKILL.md",
+      "computedHash": "90a8a8c06bcaa0457391070d70d9f53e6863ddd6942a2cc5d1350a5dea913724"
+    },
+    "extract": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/extract/SKILL.md",
+      "computedHash": "9b44c404182dfbba95bbec6e937cb4748bf2bdc1454945fae1050d56b0269ced"
+    },
+    "forms": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/forms/SKILL.md",
+      "computedHash": "60be7e76a2ea4acf089caf1465274e6bb10b041068407a0f19e7816994bcbe99"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
+    },
+    "frontend-design-review": {
+      "source": "microsoft/skills",
+      "sourceType": "github",
+      "skillPath": ".github/skills/frontend-design-review/SKILL.md",
+      "computedHash": "bdfcadec9604ec0225f337ffbcecb8c8a5ddf69b6b1a1335963df97a0665472e"
+    },
+    "full-output-enforcement": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/output-skill/SKILL.md",
+      "computedHash": "26bd29ce4c5e02c7666b2d503609bf466bd32290822e91f0e984147048dbb924"
+    },
+    "gpt-taste": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/gpt-tasteskill/SKILL.md",
+      "computedHash": "cc8f0c601d8240a124e1d11634351a2be7b8a72fd807c75e5b6bf7afcd5ddee0"
+    },
+    "hallmark": {
+      "source": "nutlope/hallmark",
+      "sourceType": "github",
+      "skillPath": "skills/hallmark/SKILL.md",
+      "computedHash": "579f86b27cdd7eb972107f7aecedd537f472891c5fd7c7c821bea15f64e0fe86"
+    },
+    "harden": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/harden/SKILL.md",
+      "computedHash": "7f68096c25be391c4b01f7e5bcab8e13360370bad1b0cf515d444a505baea40c"
+    },
+    "hierarchy": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/hierarchy/SKILL.md",
+      "computedHash": "e87d57c71fced107fca8dfa322f888b1c6b798b303c31977c012844ac5027238"
+    },
+    "high-end-visual-design": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/soft-skill/SKILL.md",
+      "computedHash": "7db385e4c5370e5a7fca9704a1361b056e4504ea6a03924bb86f33a4f00b5c73"
+    },
+    "image-to-code": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/image-to-code-skill/SKILL.md",
+      "computedHash": "58517b03b2a01f4c9ba65861559d03df931400871bbc200978c975b24bb92c73"
+    },
+    "imagegen-frontend-mobile": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/imagegen-frontend-mobile/SKILL.md",
+      "computedHash": "9ab7f4f6ce66a3cff02bbf5894e5bd5af50bf5d6ef0adffdc88e8fab772fe44f"
+    },
+    "imagegen-frontend-web": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/imagegen-frontend-web/SKILL.md",
+      "computedHash": "65f5ae59fa317567809438310b1c54f78cd133426deb43e4d3d4ca4c8f541628"
+    },
+    "imagery": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/imagery/SKILL.md",
+      "computedHash": "216d972fe0e80cb33019c02a946caa05b7d5dbbb1b10bb9f75e2ff1116f9f34c"
+    },
+    "industrial-brutalist-ui": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/brutalist-skill/SKILL.md",
+      "computedHash": "8fc355c4aadb7d29c53ca28bc41be3cd6eea765d121e3737c4dc2d0f90a8effa"
+    },
+    "localize": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/localize/SKILL.md",
+      "computedHash": "44c3e809ff5c59cbd51cbdd90811d045686a7c45355cb49fe99f21ba565a22b5"
+    },
+    "minimalist-ui": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/minimalist-skill/SKILL.md",
+      "computedHash": "08873a3131d3be27bef9bf3304b310b16b44ca6e3561aebe532797be3443f6bd"
+    },
+    "motion": {
+      "source": "motiondivision/ai-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/motion/skills/motion/SKILL.md",
+      "computedHash": "3c8f6f40f83820e8d0366e9187444365680e169d9394a03b7cd2ec2e6b711f19"
+    },
+    "no-ai-slop": {
+      "source": "petergyang/no-ai-slop",
+      "sourceType": "github",
+      "skillPath": "skills/no-ai-slop/SKILL.md",
+      "computedHash": "7ea5a3f35faef4856e30f4ee7556e4748f799caeb1ca498229fd75510623bef4"
+    },
+    "normalize": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/normalize/SKILL.md",
+      "computedHash": "09eb7767fa41d5dda9b993dd49b9d00cce555800d30909b4accd43c0d39e627f"
+    },
+    "onboard": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/onboard/SKILL.md",
+      "computedHash": "930cc0dcc30d32760ffa00e0bdb0a8cb64c62e6cb016b5b3c2045649c5323fff"
+    },
+    "optimize": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/optimize/SKILL.md",
+      "computedHash": "66a7c4c86a7cd93d7ce59e195f15ed09d9b472c3baac90f89d5294d9589bb9e8"
+    },
+    "polish": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/polish/SKILL.md",
+      "computedHash": "220c204cb6e665641472db5b4a9e7d9382a6d561a76bb2d95a14850cc5206efb"
+    },
+    "quieter": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/quieter/SKILL.md",
+      "computedHash": "da18be4180ecbb742788c8b0ddc69acf119303b2a8b36228eac76392cbff5eaf"
+    },
+    "redesign-existing-projects": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/redesign-skill/SKILL.md",
+      "computedHash": "b405eee0e0e80fc243f731d9aa368bca307e356db7e6157d27101d369dac6726"
+    },
+    "search": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/search/SKILL.md",
+      "computedHash": "b0cc57f4e2044e86c791d8119ea00b135d314591390786c9da2940a83f810d6a"
+    },
+    "security-ux": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/security-ux/SKILL.md",
+      "computedHash": "5872efd04184c059e2f58b1aa6af7d3a9472620c1c88324d3af1e87bfc196da8"
+    },
+    "setup": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/setup/SKILL.md",
+      "computedHash": "dd21c2f3c411b2f71b07aa19ce8c0921dc395a5adc407bff9ae8e6c6d979bc42"
+    },
+    "showcase": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/showcase/SKILL.md",
+      "computedHash": "9c088b236d38d2129beba9fe2f5e778d6010954a461e8999f4b160a596799648"
+    },
+    "slides": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/slides/SKILL.md",
+      "computedHash": "c72a8bcd2ee98a7caab8f00a816c7e7ccfa46bba6682539db2186e71220155f1"
+    },
+    "stitch-design-taste": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/stitch-skill/SKILL.md",
+      "computedHash": "13322f38406cd3abf16ba45e35bdc9b18002d0153a79b4612b97aefc65d5a335"
+    },
+    "test": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/test/SKILL.md",
+      "computedHash": "5a557f8dafd539097f1160f1364c5d43d44315735dd60ce355e8ffd045aae9e7"
+    },
+    "typeset": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/typeset/SKILL.md",
+      "computedHash": "f912e8fafc0e68bd5b8838dccd0c03033ce10f2003435a480647b98adb53f30c"
+    },
+    "ui-styling": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ui-styling/SKILL.md",
+      "computedHash": "360a6007fae358c852fe0ba5efc0f69deee4768a00b9bdc8cd393a3f8491626a"
+    },
+    "ui-ux-pro-max": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "computedHash": "523b8063c07eedd2b8a1ca94d7a0be9ad340026bd9f21a1eda0b6be2a855298f"
+    }
+  }
+}
