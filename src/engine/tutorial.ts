@@ -1,6 +1,7 @@
-import type { UserProgress } from '../types';
+import type { CommandMeta, UserProgress } from '../types';
 import type { AnswerDef, LessonDef, TutorialStep } from '../types/tutorial';
 import { FILES_LESSONS, firstLesson as curriculumFirstLesson, isInteractiveKind, lessonById } from '../data/curriculum';
+import { COMMANDS } from '../data/commands';
 import { FILES_TRACK, type UnitDef, lessonAfter, trackLessons, unitOfLesson } from '../data/tracks';
 
 export function normalizeProgress(raw: Partial<UserProgress> | undefined): UserProgress {
@@ -149,6 +150,32 @@ export function unitProgress(unit: UnitDef, progress: UserProgress): { done: num
 
 export function currentUnit(progress: UserProgress): UnitDef | undefined {
   return unitOfLesson(progress.currentLessonId, FILES_TRACK) ?? FILES_TRACK.units[0];
+}
+
+/**
+ * Commands the learner has actually been taught, derived from completed steps' command
+ * anatomy — never a hardcoded list. Used by the dashboard "recently learned" panel and the
+ * Progress page; deliberately does not depend on a separate activity log.
+ */
+export function commandsLearned(progress: UserProgress): CommandMeta[] {
+  const seen = new Set<string>();
+  const learned: CommandMeta[] = [];
+  for (const lessonId of progress.completedLessonIds) {
+    const lesson = lessonById(lessonId);
+    if (!lesson) continue;
+    for (const step of lesson.steps) {
+      const line = step.anatomy?.line;
+      if (!line) continue;
+      const name = line.trim().split(/\s+/)[0]?.toLowerCase();
+      if (!name || seen.has(name)) continue;
+      const meta = COMMANDS.find((c) => c.name === name || c.aliases?.includes(name));
+      if (!meta || seen.has(meta.name)) continue;
+      seen.add(meta.name);
+      seen.add(name);
+      learned.push(meta);
+    }
+  }
+  return learned;
 }
 
 export { FILES_LESSONS, isInteractiveKind, lessonById };

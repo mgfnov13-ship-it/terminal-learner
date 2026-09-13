@@ -6,10 +6,10 @@ import { activeLesson } from '../../engine/tutorial';
 import { useClock, useOS, useOSApi } from '../../hooks/useOS';
 
 const NAV = [
-  { to: '/', label: 'Home', Icon: Home, match: ['/'] },
-  { to: '/learn/files', label: 'Learn', Icon: BookOpen, match: ['/learn', '/academy'] },
-  { to: '/dashboard', label: 'Progress', Icon: BarChart3, match: ['/dashboard'] },
-  { to: '/achievements', label: 'Achievements', Icon: Trophy, match: ['/achievements'] },
+  { to: '/app', label: 'Home', Icon: Home, match: ['/app'], exact: true },
+  { to: '/app/learn/files', label: 'Learn', Icon: BookOpen, match: ['/app/learn', '/app/lab'] },
+  { to: '/app/progress', label: 'Progress', Icon: BarChart3, match: ['/app/progress'] },
+  { to: '/app/achievements', label: 'Achievements', Icon: Trophy, match: ['/app/achievements'] },
 ];
 
 export function LabDock() {
@@ -30,7 +30,9 @@ export function LabDock() {
     <footer className="dock">
       <nav className="dock-nav" aria-label="Terminal Space">
         {NAV.map((item) => {
-          const active = item.match.some((m) => (m === '/' ? pathname === '/' : pathname.startsWith(m)));
+          const active = item.exact
+            ? item.match.includes(pathname)
+            : item.match.some((m) => pathname.startsWith(m));
           return (
             <NavLink key={item.to} to={item.to} className={`dock-link${active ? ' is-on' : ''}`}>
               <item.Icon size={16} strokeWidth={1.7} />

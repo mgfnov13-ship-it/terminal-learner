@@ -24,11 +24,11 @@ export function TrackPage() {
         reading errors) is what makes the later tracks readable.
       </p>
       <div className="cta-row">
-        <Link className="btn-primary" to="/learn/files">
+        <Link className="btn-primary" to="/app/learn/files">
           Go to the Files track
         </Link>
-        <Link className="btn-secondary" to="/">
-          Back to home
+        <Link className="btn-secondary" to="/app">
+          Back to dashboard
         </Link>
       </div>
     </section>

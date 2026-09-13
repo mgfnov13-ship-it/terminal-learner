@@ -49,7 +49,7 @@ export function FilesPathPage() {
           </p>
         </div>
         <div className="cta-row">
-          <Link className="btn-primary" to={`/academy/files/${lesson.id}`}>
+          <Link className="btn-primary" to={`/app/lab/files/${lesson.id}`}>
             {files.done === 0 && progress.currentStepIndex === 0 ? 'Start lesson 1' : `Continue: ${lesson.title}`}
           </Link>
         </div>
@@ -94,7 +94,7 @@ export function FilesPathPage() {
                           type="button"
                           disabled={!open}
                           aria-current={ls === 'current' ? 'step' : undefined}
-                          onClick={() => navigate(`/academy/files/${id}`)}
+                          onClick={() => navigate(`/app/lab/files/${id}`)}
                         >
                           <span className="lesson-num">{lessonNumber(id)}</span>
                           <span className="lesson-text">
@@ -119,7 +119,7 @@ export function FilesPathPage() {
         <p>
           Finished the lessons you need? Missions apply them to a messy scenario with no step-by-step guidance.
         </p>
-        <Link className="text-link" to="/missions">
+        <Link className="text-link" to="/app/missions">
           Practical missions <span aria-hidden>→</span>
         </Link>
       </section>

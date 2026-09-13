@@ -29,10 +29,10 @@ export function DashboardPage() {
         </p>
         <p className="lede">{lesson.subtitle}</p>
         <div className="cta-row">
-          <Link className="btn-primary" to={`/academy/files/${lesson.id}`}>
+          <Link className="btn-primary" to={`/app/lab/files/${lesson.id}`}>
             {files.done === 0 && progress.currentStepIndex === 0 ? 'Start lesson' : 'Continue lesson'}
           </Link>
-          <Link className="btn-secondary" to="/learn/files">
+          <Link className="btn-secondary" to="/app/learn/files">
             View path
           </Link>
         </div>
@@ -124,7 +124,7 @@ export function DashboardPage() {
               ))}
             </ul>
           )}
-          <Link className="text-link" to="/achievements">
+          <Link className="text-link" to="/app/achievements">
             All achievements <span aria-hidden>→</span>
           </Link>
         </article>
@@ -144,8 +144,8 @@ export function DashboardPage() {
                 ))}
               </p>
               <p className="reward">{mission.xp} XP</p>
-              <Link className="btn-secondary" to={`/missions/${mission.id}`}>
-                Start mission
+              <Link className="btn-secondary" to={`/app/missions/${mission.id}`}>
+                View mission
               </Link>
             </>
           ) : (
@@ -155,7 +155,7 @@ export function DashboardPage() {
                   ? 'Every unlocked mission is done. New ones open as later units are built.'
                   : missionLockNote(progress)}
               </p>
-              <Link className="text-link" to="/missions">
+              <Link className="text-link" to="/app/missions">
                 See all missions <span aria-hidden>→</span>
               </Link>
             </>

@@ -61,6 +61,8 @@ export const osApi = {
   terminalButtonState: os.terminalButtonState.bind(os),
   openLearningWorkspace: os.openLearningWorkspace.bind(os),
   fitToStage: os.fitToStage.bind(os),
+  rehydrateForUser: os.rehydrateForUser.bind(os),
+  hydrateProgress: os.hydrateProgress.bind(os),
 };
 
 export function useOSApi() {

@@ -1,18 +1,21 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../features/auth/useAuth';
 
 /**
  * N8 Terminal command nav — prompt glyph, wordmark as a path, destinations as
- * lowercase segments, cursor at the end. Deliberately not the lab taskbar.
+ * lowercase segments, cursor at the end. Public product-site nav: no app-only
+ * concepts (missions, achievements, settings) live here.
  */
 const LINKS = [
-  { to: '/learn/files', label: 'learn' },
-  { to: '/missions', label: 'missions' },
-  { to: '/achievements', label: 'achievements' },
-  { to: '/dashboard', label: 'dashboard' },
-  { to: '/settings', label: 'settings' },
+  { to: '/tracks', label: 'tracks' },
+  { to: '/how-it-works', label: 'how it works' },
+  { to: '/about', label: 'about' },
 ];
 
 export function SiteNav() {
+  const navigate = useNavigate();
+  const { user, isConfigured } = useAuth();
+
   return (
     <header className="site-nav">
       <div className="site-nav-inner">
@@ -30,6 +33,26 @@ export function SiteNav() {
           ))}
         </nav>
         <span className="site-nav-caret" aria-hidden />
+        <div className="site-nav-cta">
+          {user ? (
+            <button type="button" className="btn-chip" onClick={() => navigate('/app')}>
+              Dashboard
+            </button>
+          ) : (
+            <>
+              <NavLink to="/auth/sign-in" className="site-nav-signin">
+                sign in
+              </NavLink>
+              <button
+                type="button"
+                className="btn-chip"
+                onClick={() => navigate(isConfigured ? '/auth/sign-up' : '/app')}
+              >
+                Start learning
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

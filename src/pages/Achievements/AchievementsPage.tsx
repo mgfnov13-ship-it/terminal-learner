@@ -54,7 +54,7 @@ export function AchievementsPage() {
 
       <section className="path-foot">
         <p>Achievements come from ordinary use. The fastest way to collect them is to keep working through the track.</p>
-        <Link className="text-link" to="/learn/files">
+        <Link className="text-link" to="/app/learn/files">
           Back to the Files path <span aria-hidden>→</span>
         </Link>
       </section>

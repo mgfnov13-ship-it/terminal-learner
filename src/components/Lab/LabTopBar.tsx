@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Search, Settings, SquareTerminal, UserRound } from 'lucide-react';
+import { LogOut, Search, Settings, SquareTerminal, UserRound } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { levelFromXp, levelProgress, nextThreshold } from '../../data/player';
 import { FILES_TRACK, lessonNumber, trackLessons, unitNumber } from '../../data/tracks';
@@ -18,7 +18,7 @@ export function LabTopBar() {
 
   return (
     <header className="labbar">
-      <Link to="/" className="labbar-brand" aria-label="Terminal Space home">
+      <Link to="/app" className="labbar-brand" aria-label="Terminal Space dashboard">
         <span className="labbar-logo" aria-hidden>
           <SquareTerminal size={18} strokeWidth={2} />
         </span>
@@ -26,11 +26,11 @@ export function LabTopBar() {
       </Link>
 
       <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to="/learn/files">Learn</Link>
+        <Link to="/app/learn/files">Learn</Link>
         <span aria-hidden>/</span>
-        <Link to="/learn/files">{FILES_TRACK.name}</Link>
+        <Link to="/app/learn/files">{FILES_TRACK.name}</Link>
         <span aria-hidden>/</span>
-        <Link to="/learn/files">Unit {unitNumber(unit?.id ?? '')}</Link>
+        <Link to="/app/learn/files">Unit {unitNumber(unit?.id ?? '')}</Link>
         <span aria-hidden>/</span>
         <span className="crumb-now" aria-current="page">
           {lesson.title}
@@ -68,11 +68,12 @@ export function LabTopBar() {
 
       <button
         type="button"
-        className="labbar-avatar"
-        aria-label="Signed in as Student — open dashboard"
-        onClick={() => navigate('/dashboard')}
+        className="labbar-icon labbar-exit"
+        aria-label="Exit lesson"
+        title="Exit lesson"
+        onClick={() => navigate('/app')}
       >
-        ST
+        <LogOut size={18} strokeWidth={1.6} />
       </button>
     </header>
   );
@@ -107,7 +108,7 @@ function LessonSearch() {
     setQuery('');
     setOpen(false);
     input.current?.blur();
-    navigate(`/academy/files/${id}`);
+    navigate(`/app/lab/files/${id}`);
   };
 
   return (

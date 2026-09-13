@@ -9,7 +9,7 @@ export function WelcomeScreen() {
       <p>You’ll learn the terminal by actually using one.</p>
       <p>Everything here runs inside a safe simulated computer, so experiment freely. Commands never leave this browser.</p>
       <button type="button" className="btn-primary" onClick={() => api.finishWelcome()}>
-        Start Academy
+        Continue
       </button>
     </main>
   );

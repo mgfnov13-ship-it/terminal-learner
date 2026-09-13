@@ -17,7 +17,7 @@ const ICONS = [
   { id: 'terminal' as const, label: 'Terminal', Icon: TerminalSquare },
   { id: 'recycle' as const, label: 'Recycle Bin', Icon: Trash2 },
   { id: 'settings' as const, label: 'Settings', Icon: Settings },
-  { id: 'academy' as const, label: 'Academy', Icon: GraduationCap },
+  { id: 'academy' as const, label: 'Guide', Icon: GraduationCap },
   { id: 'help' as const, label: 'Help', Icon: HelpCircle },
 ];
 
@@ -74,9 +74,9 @@ export function Desktop() {
           <p className="slip-kicker">Today’s lesson</p>
           <h2>{lesson.title}</h2>
           <p>{lesson.subtitle}</p>
-          {settings.showHints && <p className="slip-hint">Open Academy to continue. The terminal is where you type.</p>}
+          {settings.showHints && <p className="slip-hint">Open the Guide to continue. The terminal is where you type.</p>}
           <button type="button" onClick={() => api.openApp('academy')}>
-            Open Academy
+            Open Guide
           </button>
         </aside>
       )}

@@ -169,7 +169,7 @@ export function AcademyApp() {
               <RefreshCw size={14} strokeWidth={1.7} />
               Reset scenario
             </button>
-            <button type="button" className="act" onClick={() => navigate('/missions')}>
+            <button type="button" className="act" onClick={() => navigate('/app/missions')}>
               Leave mission
             </button>
           </>
@@ -386,7 +386,7 @@ export function AcademyApp() {
         <p className="reward">{mission.xp} XP</p>
         {done && (
           <div className="row-actions">
-            <button type="button" className="btn-primary" onClick={() => navigate('/missions')}>
+            <button type="button" className="btn-primary" onClick={() => navigate('/app/missions')}>
               Back to missions
             </button>
           </div>
@@ -426,17 +426,17 @@ export function AcademyApp() {
               className="btn-primary"
               onClick={() => {
                 api.goNextLesson();
-                navigate(`/academy/files/${upcoming.id}`);
+                navigate(`/app/lab/files/${upcoming.id}`);
               }}
             >
               Continue to next lesson
             </button>
           ) : (
-            <button type="button" className="btn-primary" onClick={() => navigate('/missions')}>
+            <button type="button" className="btn-primary" onClick={() => navigate('/app/missions')}>
               Try a mission
             </button>
           )}
-          <button type="button" onClick={() => navigate('/learn/files')}>
+          <button type="button" onClick={() => navigate('/app/learn/files')}>
             Back to path
           </button>
         </div>
@@ -452,7 +452,7 @@ function Onboarding({ page }: { page: number }) {
         <p className="brief-label">Welcome</p>
         <h3>This is the lab</h3>
         <p>
-          Academy is this panel: it explains one step at a time. The Terminal beside it is a real simulated command
+          The Guide is this panel: it explains one step at a time. The Terminal beside it is a real simulated command
           prompt. Nothing you type reaches your own computer, so experiment freely.
         </p>
       </article>

@@ -80,7 +80,7 @@ const APP_META: Record<AppId, { title: string; w: number; h: number }> = {
   explorer: { title: 'File Explorer', w: 780, h: 500 },
   thispc: { title: 'This PC', w: 780, h: 500 },
   recycle: { title: 'Recycle Bin', w: 560, h: 400 },
-  academy: { title: 'Academy', w: 540, h: 640 },
+  academy: { title: 'Guide', w: 540, h: 640 },
   settings: { title: 'Settings', w: 520, h: 520 },
   help: { title: 'Help', w: 520, h: 480 },
 };
@@ -90,7 +90,7 @@ function defaultWindows(): WindowRecord[] {
 }
 
 /**
- * The lab is a side-by-side pair inside .lab-stage: terminal left, Academy right.
+ * The lab is a side-by-side pair inside .lab-stage: terminal left, Guide right.
  * Both are sized from the stage so the whole lesson is visible without scrolling chrome.
  */
 function labLayout() {
@@ -110,8 +110,8 @@ function labLayout() {
   };
 }
 
-function hydrate(): OSSnapshot {
-  const saved = loadState();
+function hydrate(userId?: string | null): OSSnapshot {
+  const saved = loadState(userId);
   const vfs = saved ? new VirtualFileSystem(saved.vfs) : VirtualFileSystem.seed();
   const progress = saved?.progress ?? { ...DEFAULT_PROGRESS };
   return {
@@ -147,6 +147,8 @@ class OSStore {
   private listeners = new Set<() => void>();
   private z = 10;
   private persistTimer: number | null = null;
+  /** Which localStorage namespace `queuePersist`/hydration currently target — null is guest/local. */
+  private storageUserId: string | null = null;
 
   subscribe = (fn: () => void) => {
     this.listeners.add(fn);
@@ -176,7 +178,32 @@ class OSStore {
   private queuePersist() {
     if (typeof window === 'undefined') return;
     if (this.persistTimer) window.clearTimeout(this.persistTimer);
-    this.persistTimer = window.setTimeout(() => saveState(this.persistPayload()), 80);
+    this.persistTimer = window.setTimeout(() => saveState(this.persistPayload(), this.storageUserId), 80);
+  }
+
+  /**
+   * Switches which account's localStorage namespace this store reads from and writes to.
+   * Always flushes any pending write to the OLD namespace first, so account A's in-flight
+   * progress is never lost or written into account B's namespace. Called by the auth/sync layer
+   * on sign-in, sign-out, and account switch — never touches remote data itself.
+   */
+  rehydrateForUser(userId: string | null) {
+    if (this.persistTimer && typeof window !== 'undefined') {
+      window.clearTimeout(this.persistTimer);
+      this.persistTimer = null;
+      saveState(this.persistPayload(), this.storageUserId);
+    }
+    this.storageUserId = userId;
+    this.snap = hydrate(userId);
+    this.listeners.forEach((l) => l());
+  }
+
+  /**
+   * Replaces the progress slice with a reconciled snapshot (local + cloud merge) without
+   * touching VFS/window/UI state. Used once by the sync layer after migration is resolved.
+   */
+  hydrateProgress(progress: UserProgress) {
+    this.emit({ progress, ...this.tutorialFlags(progress) });
   }
 
   private toast(kind: ToastItem['kind'], title: string, body?: string) {

@@ -8,11 +8,11 @@ export function NotFoundPage({ title, body }: { title?: string; body?: string } 
       <h1>{title ?? 'That page does not exist'}</h1>
       <p className="lede">{body ?? `Nothing is routed at ${pathname}.`}</p>
       <div className="cta-row">
-        <Link className="btn-primary" to="/dashboard">
-          Dashboard
+        <Link className="btn-primary" to="/">
+          Home
         </Link>
-        <Link className="btn-secondary" to="/learn/files">
-          Files path
+        <Link className="btn-secondary" to="/app">
+          Dashboard
         </Link>
       </div>
     </section>

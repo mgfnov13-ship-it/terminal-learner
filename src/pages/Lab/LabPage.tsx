@@ -41,7 +41,7 @@ export function MissionLabPage() {
       <LabRouteError
         title="That mission does not exist"
         body={`No mission is registered as “${missionId}”.`}
-        backTo="/missions"
+        backTo="/app/missions"
         backLabel="All missions"
       />
     );
@@ -49,16 +49,16 @@ export function MissionLabPage() {
   return <App />;
 }
 
-/** /academy with no lesson: send the learner to whatever they were last working on. */
+/** /app/lab with no lesson: send the learner to whatever they were last working on. */
 export function AcademyEntry() {
   const { progress } = useOS();
-  return <Navigate to={`/academy/files/${progress.currentLessonId}`} replace />;
+  return <Navigate to={`/app/lab/files/${progress.currentLessonId}`} replace />;
 }
 
 function LabRouteError({
   title,
   body,
-  backTo = '/learn/files',
+  backTo = '/app/learn/files',
   backLabel = 'Files path',
 }: {
   title: string;
@@ -76,7 +76,7 @@ function LabRouteError({
           <Link className="btn-primary" to={backTo}>
             {backLabel}
           </Link>
-          <Link className="btn-secondary" to="/dashboard">
+          <Link className="btn-secondary" to="/app">
             Dashboard
           </Link>
         </div>

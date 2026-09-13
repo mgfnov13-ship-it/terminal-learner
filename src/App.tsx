@@ -21,7 +21,7 @@ export default function App() {
 
   useEffect(() => {
     // The site's Homepage already covers this introductory messaging, so
-    // arriving at /academy skips the in-app welcome screen and goes
+    // arriving at /app/lab skips the in-app welcome screen and goes
     // straight to the boot transition.
     if (phase === 'welcome') api.finishWelcome();
   }, [phase, api]);

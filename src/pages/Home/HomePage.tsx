@@ -1,14 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { MISSIONS } from '../../data/missions';
 import { FILES_TRACK, PLANNED_TRACKS, lessonNumber, trackLessons, unitNumber } from '../../data/tracks';
 import { activeLesson, currentUnit, filesLessonProgress } from '../../engine/tutorial';
+import { useAuth } from '../../features/auth/useAuth';
 import { useOS } from '../../hooks/useOS';
 
 const STAGES = [
   {
     step: '1.0',
     title: 'Learn',
-    body: 'Academy explains one idea at a time — what a command is for, and what each part of it means.',
+    body: 'The Guide explains one idea at a time — what a command is for, and what each part of it means.',
   },
   {
     step: '2.0',
@@ -38,6 +38,7 @@ const REASONS = [
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { user, isConfigured } = useAuth();
   const { progress } = useOS();
   const lessons = trackLessons(FILES_TRACK);
   const files = filesLessonProgress(progress);
@@ -45,6 +46,14 @@ export function HomePage() {
   const lesson = activeLesson(progress);
   const unit = currentUnit(progress);
   const builtUnits = FILES_TRACK.units.filter((u) => u.lessonIds.length > 0).length;
+
+  function goPrimary() {
+    if (user) {
+      navigate(started ? `/app/lab/files/${lesson.id}` : '/app/learn/files');
+      return;
+    }
+    navigate(isConfigured ? '/auth/sign-up' : '/app');
+  }
 
   return (
     <>
@@ -61,20 +70,14 @@ export function HomePage() {
             one side, a working command prompt on the other, and honest feedback on whatever you type.
           </p>
           <div className="cta-row">
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={() => navigate(started ? `/academy/files/${lesson.id}` : '/learn/files')}
-            >
-              {started ? 'Continue progress' : 'Start learning'}
+            <button type="button" className="btn-primary" onClick={goPrimary}>
+              {user ? 'Continue learning' : 'Start learning'}
             </button>
-            <Link className="btn-secondary" to="/learn/files">
-              See the Files path
+            <Link className="btn-secondary" to="/tracks/files">
+              See the Files track
             </Link>
           </div>
-          <p className="hero-note">
-            {lessons.length} lessons · {MISSIONS.length} missions · no account, no install
-          </p>
+          <p className="hero-note">Runs in your browser · Safe simulated filesystem · Progress saved to your account</p>
         </div>
 
         <div className="hero-proof">
@@ -93,12 +96,12 @@ C:\\Users\\Student\\Projects> `}</code>
             </pre>
           </div>
           <aside className="proof-card">
-            <p className="brief-label">Academy · step 3 of 5</p>
+            <p className="brief-label">Guide · step 3 of 5</p>
             <h2>Create directories</h2>
             <p>
               <strong>Your turn.</strong> Create a directory named Projects.
             </p>
-            <p className="proof-card-note">Academy teaches you. Terminal lets you try it.</p>
+            <p className="proof-card-note">The Guide teaches you. Terminal lets you try it.</p>
           </aside>
         </div>
       </section>
@@ -136,7 +139,7 @@ C:\\Users\\Student\\Projects> `}</code>
             <tbody>
               <tr>
                 <th scope="row">
-                  <Link to="/learn/files">{FILES_TRACK.name}</Link>
+                  <Link to="/tracks/files">{FILES_TRACK.name}</Link>
                 </th>
                 <td>{FILES_TRACK.tagline}</td>
                 <td>
@@ -177,7 +180,7 @@ C:\\Users\\Student\\Projects> `}</code>
       </section>
 
       <section className="closing">
-        {started ? (
+        {user && started ? (
           <>
             <p className="kicker">Continue learning</p>
             <h2>
@@ -186,7 +189,7 @@ C:\\Users\\Student\\Projects> `}</code>
             <p className="closing-line">
               Lesson {lessonNumber(lesson.id)} · {lesson.title} — {files.done} of {files.total} lessons complete.
             </p>
-            <Link className="btn-chip" to={`/academy/files/${lesson.id}`}>
+            <Link className="btn-chip" to={`/app/lab/files/${lesson.id}`}>
               Continue <span aria-hidden>→</span>
             </Link>
           </>
@@ -197,8 +200,8 @@ C:\\Users\\Student\\Projects> `}</code>
             <p className="closing-line">
               First lesson: the prompt, the cursor, and your first command. It takes a couple of minutes.
             </p>
-            <Link className="btn-chip" to="/learn/files">
-              Start the Files track <span aria-hidden>→</span>
+            <Link className="btn-chip" to="/tracks/files">
+              See the Files track <span aria-hidden>→</span>
             </Link>
           </>
         )}

@@ -3,7 +3,12 @@ import { HOME } from './paths';
 import { normalizeProgress } from './tutorial';
 import { VirtualFileSystem } from './virtualFileSystem';
 
-const KEY = 'terminal-space-v1';
+const BASE_KEY = 'terminal-space-v1';
+
+/** Guest/local-mode progress lives at the base key; a signed-in account gets its own namespace. */
+export function storageKey(userId?: string | null): string {
+  return userId ? `${BASE_KEY}:user:${userId}` : BASE_KEY;
+}
 
 export const DEFAULT_SETTINGS: SettingsState = {
   appearance: 'dark',
@@ -31,9 +36,9 @@ export function normalizeSettings(raw: Partial<SettingsState> | undefined): Sett
   };
 }
 
-export function loadState(): PersistedState | null {
+export function loadState(userId?: string | null): PersistedState | null {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(storageKey(userId));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as PersistedState;
     if (!parsed?.vfs?.nodes) return null;
@@ -47,12 +52,17 @@ export function loadState(): PersistedState | null {
   }
 }
 
-export function saveState(state: PersistedState): void {
+export function saveState(state: PersistedState, userId?: string | null): void {
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(storageKey(userId), JSON.stringify(state));
   } catch {
     // Quota or private mode: keep running in memory.
   }
+}
+
+/** The original pre-auth guest save, if this browser has one — the source for account migration. */
+export function loadLegacyState(): PersistedState | null {
+  return loadState(undefined);
 }
 
 export function exportState(state: PersistedState): string {

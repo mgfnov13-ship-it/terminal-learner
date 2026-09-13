@@ -56,12 +56,12 @@ export function MissionsPage() {
                     Needs first: <strong>{missing.join(', ')}</strong>
                   </p>
                 ) : (
-                  <button type="button" className="btn-secondary" onClick={() => navigate(`/missions/${m.id}`)}>
-                    {complete ? 'Replay mission' : 'Start mission'}
+                  <button type="button" className="btn-secondary" onClick={() => navigate(`/app/missions/${m.id}`)}>
+                    {complete ? 'Replay mission' : 'View mission'}
                   </button>
                 )}
                 {locked && (
-                  <Link className="text-link" to="/learn/files">
+                  <Link className="text-link" to="/app/learn/files">
                     Go to those lessons <span aria-hidden>→</span>
                   </Link>
                 )}

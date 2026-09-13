@@ -2,7 +2,12 @@
 
 ## Register
 product
-The desktop, windows, terminal, explorer, and academy are one product surface. There is no marketing landing page.
+Terminal Space is now two deliberately distinct surfaces sharing one brand and one token system:
+- **Public website** (`/`, `/tracks`, `/how-it-works`, `/demo`, `/about`, `/help`, `/contact`, `/privacy`, `/terms`, `/auth/*`) — a professional product site. Public nav/footer, no game chrome.
+- **Learning app** (`/app/*`) — the authenticated workspace: dashboard, learn, missions, progress, achievements, profile, settings. Its own nav (`AppLayout`/`AppNav`), distinct from the public site's terminal-prompt nav.
+- **The Lab** (`/app/lab/*`) — the immersive windowed desktop/terminal experience, reached only from inside the app. This is where the "no marketing landing page" register below still fully applies: the desktop, windows, terminal, explorer, and Guide (formerly "Academy") are one product surface, unchanged.
+
+Keeping the Lab's aesthetic special depends on the public site and app shell staying restrained by comparison — see Principles.
 
 ## Users
 Beginners who need Windows Terminal without risking a real machine. They sit at a desk or on a phone, follow one mission at a time, and want to see files appear when a command works.
@@ -25,8 +30,9 @@ Speak like a lab instructor. Name the file. Name the folder. Do not pep-talk. Do
 - numbered section kickers (01 · THE TOUR)
 
 ## Principles
-- The desktop is the product. The academy is a brief on that desk, not a website wrapped around a demo.
-- One source of truth: the virtual file system. Terminal writes it. Explorer reads it.
+- Inside the Lab: the desktop is the product. The Guide is a brief on that desk, not a website wrapped around a demo.
+- Outside the Lab (public site, app shell): professional and restrained on purpose — no simulated desktop windows, no OS chrome, no XP language leaking into marketing copy. This contrast is what makes entering the Lab feel like something happened.
+- One source of truth: the virtual file system. Terminal writes it. Explorer reads it. It is device-local — account progress (XP, completion, achievements) is cloud-backed once signed in, but the live simulated disk never claims to follow you to another device.
 - Copy names the thing that happened and what to do next.
 - Motion reports state (window open, XP gained). It does not decorate.
 
@@ -55,7 +61,7 @@ WCAG 2.2 AA. Contrast checked on tokens (ink on navy, ink on tungsten). Visible 
 - **Motion budget:** restrained. Window mount, toast, XP chip. No ambient loops.
 - **Layout archetype:** Workbench. Taskbar is the nav. Desktop is the canvas. Apps are tools. Academy is the brief.
 - **Signature interaction:** type a command → VFS changes → Explorer updates in the same tick.
-- **Do / Don't:** Do keep window chrome original (hairline, 6px radius, tungsten focus ring). Don't reproduce Microsoft caption buttons or Segoe UI. Don't ship a landing-page hero.
+- **Do / Don't:** Do keep window chrome original (hairline, 6px radius, tungsten focus ring). Don't reproduce Microsoft caption buttons or Segoe UI. The public site does have a landing-page hero now (product website, not the Lab) — keep it typographic and restrained, not a simulated desktop window.
 
 ## Tokens
 See `tokens.css`. Semantic names only in components.
