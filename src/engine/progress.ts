@@ -1,14 +1,6 @@
 import type { MissionContext, UserProgress } from '../types';
-import { currentMission, levelFromXp } from '../data/missions';
-import { newlyUnlocked } from '../data/achievements';
-
-export interface ProgressDelta {
-  progress: UserProgress;
-  completedMissionId?: string;
-  xpGained: number;
-  leveledUpTo?: number;
-  achievements: string[];
-}
+import { MISSIONS } from '../data/missions';
+import { applyAchievements } from './xp';
 
 export function applyCommandFlags(
   progress: UserProgress,
@@ -32,32 +24,26 @@ export function applyCommandFlags(
   };
 }
 
-export function evaluateProgress(progress: UserProgress, ctx: MissionContext): ProgressDelta {
-  const beforeLevel = levelFromXp(progress.xp);
-  let next = { ...progress, completedMissionIds: [...progress.completedMissionIds] };
-  let xpGained = 0;
-  let completedMissionId: string | undefined;
-  for (let i = 0; i < 12; i += 1) {
-    const mission = currentMission(next.completedMissionIds);
-    if (!mission?.check(ctx)) break;
-    next.completedMissionIds.push(mission.id);
-    next.xp += mission.xp;
-    xpGained += mission.xp;
-    completedMissionId = mission.id;
+export function evaluatePracticeMission(
+  progress: UserProgress,
+  ctx: MissionContext,
+): { progress: UserProgress; completedMissionId?: string } {
+  if (progress.academyTab !== 'missions' || !progress.activeMissionId) {
+    return { progress };
   }
-  const unlocked = newlyUnlocked(next);
-  if (unlocked.length) {
-    next.unlockedAchievementIds = [
-      ...next.unlockedAchievementIds,
-      ...unlocked.map((a) => a.id),
-    ];
-  }
-  const afterLevel = levelFromXp(next.xp);
+  const mission = MISSIONS.find((m) => m.id === progress.activeMissionId);
+  if (!mission || progress.completedMissionIds.includes(mission.id)) return { progress };
+  if (!mission.check(ctx)) return { progress };
   return {
-    progress: next,
-    completedMissionId,
-    xpGained,
-    leveledUpTo: afterLevel > beforeLevel ? afterLevel : undefined,
-    achievements: unlocked.map((a) => a.id),
+    progress: {
+      ...progress,
+      completedMissionIds: [...progress.completedMissionIds, mission.id],
+      activeMissionId: null,
+    },
+    completedMissionId: mission.id,
   };
+}
+
+export function withAchievements(progress: UserProgress): { progress: UserProgress; achievements: string[] } {
+  return applyAchievements(progress);
 }

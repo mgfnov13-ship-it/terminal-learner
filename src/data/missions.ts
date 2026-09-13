@@ -1,6 +1,7 @@
-import type { MissionDef } from '../types';
+import type { MissionDef, UserProgress } from '../types';
 import { HOME } from '../engine/paths';
 import type { VirtualFileSystem } from '../engine/virtualFileSystem';
+import { lessonById } from './curriculum';
 
 function at(vfs: VirtualFileSystem, path: string) {
   return vfs.findByPath(path);
@@ -14,186 +15,182 @@ function isFile(vfs: VirtualFileSystem, path: string) {
   return at(vfs, path)?.type === 'file';
 }
 
-const P = `${HOME}\\Projects`;
+const DESKTOP = `${HOME}\\Desktop`;
+const DOCS = `${HOME}\\Documents`;
+const PICS = `${HOME}\\Pictures`;
+const DOWN = `${HOME}\\Downloads`;
+const PROJ = `${HOME}\\Projects`;
 
+/**
+ * Missions apply skills a lesson already taught. Each one drops the learner into a
+ * scenario with its own files and checks the finished state, never the keystrokes.
+ */
 export const MISSIONS: MissionDef[] = [
   {
-    id: 'l1-m1',
-    levelId: 1,
+    id: 'm-messy-desktop',
     order: 1,
-    title: 'Create Projects',
-    briefing: 'Every lab needs a place for work. Make a folder named Projects in your home directory.',
-    objective: 'A folder named Projects exists in C:\\Users\\Student',
-    hint: 'Folders are created with mkdir. You are already in Student.',
-    xp: 50,
-    check: ({ vfs }) => isFolder(vfs, P),
-  },
-  {
-    id: 'l1-m2',
-    levelId: 1,
-    order: 2,
-    title: 'Explore',
-    briefing: 'Look around. List whatever is in the folder you are standing in.',
-    objective: 'List the contents of the current directory from Terminal.',
-    hint: 'dir prints a Windows-style listing. ls works here too.',
-    xp: 40,
-    check: ({ listedDirectories }) => listedDirectories,
-  },
-  {
-    id: 'l1-m3',
-    levelId: 1,
-    order: 3,
-    title: 'Enter Projects',
-    briefing: 'Walk into the folder you just made. The prompt should show you are inside Projects.',
-    objective: 'Current directory is C:\\Users\\Student\\Projects',
-    hint: 'cd changes folders. cd .. climbs out.',
-    xp: 40,
-    check: ({ cwd }) => cwd.toLowerCase() === P.toLowerCase(),
-  },
-  {
-    id: 'l1-m4',
-    levelId: 1,
-    order: 4,
-    title: 'Create Notes',
-    briefing: 'Leave a file behind so the folder is not empty.',
-    objective: 'notes.txt exists inside Projects.',
-    hint: 'touch notes.txt, or type nul > notes.txt',
-    xp: 50,
-    check: ({ vfs }) => isFile(vfs, `${P}\\notes.txt`),
-  },
-  {
-    id: 'l1-m5',
-    levelId: 1,
-    order: 5,
-    title: 'Create Multiple Files',
-    briefing: 'Three more files, same folder: game, school, and ideas.',
-    objective: 'game.txt, school.txt, and ideas.txt exist in Projects.',
-    hint: 'Repeat the create step three times. Names matter.',
-    xp: 100,
+    title: 'Messy Desktop',
+    difficulty: 'Starter',
+    scenario: 'Four loose files have piled up on the Desktop.',
+    briefing:
+      'Your Desktop has two text files and two images sitting loose. Sort them into a Notes folder and an Images folder so the Desktop is clean.',
+    objective: 'Desktop\\Notes holds todo.txt and ideas.txt. Desktop\\Images holds logo.png and screenshot.png.',
+    hint: 'mkdir makes the two folders. move puts each file inside one. dir shows what is left.',
+    skills: ['dir', 'mkdir', 'move'],
+    requiresLessonIds: ['files-2', 'files-3', 'files-9'],
+    xp: 80,
+    startCwd: DESKTOP,
+    setup: [
+      { type: 'ensureFile', path: `${DESKTOP}\\todo.txt`, content: 'buy milk' },
+      { type: 'ensureFile', path: `${DESKTOP}\\ideas.txt`, content: 'app ideas' },
+      { type: 'ensureFile', path: `${DESKTOP}\\logo.png`, content: 'png' },
+      { type: 'ensureFile', path: `${DESKTOP}\\screenshot.png`, content: 'png' },
+      { type: 'cwd', path: DESKTOP },
+    ],
     check: ({ vfs }) =>
-      isFile(vfs, `${P}\\game.txt`) && isFile(vfs, `${P}\\school.txt`) && isFile(vfs, `${P}\\ideas.txt`),
+      isFile(vfs, `${DESKTOP}\\Notes\\todo.txt`) &&
+      isFile(vfs, `${DESKTOP}\\Notes\\ideas.txt`) &&
+      isFile(vfs, `${DESKTOP}\\Images\\logo.png`) &&
+      isFile(vfs, `${DESKTOP}\\Images\\screenshot.png`),
   },
   {
-    id: 'l1-m6',
-    levelId: 1,
-    order: 6,
-    title: 'Rename',
-    briefing: 'ideas.txt needs a clearer name.',
-    objective: 'ideas.txt is now project-ideas.txt inside Projects.',
-    hint: 'ren old.txt new.txt',
-    xp: 75,
-    check: ({ vfs }) => isFile(vfs, `${P}\\project-ideas.txt`) && !isFile(vfs, `${P}\\ideas.txt`),
-  },
-  {
-    id: 'l1-m7',
-    levelId: 1,
-    order: 7,
-    title: 'Copy',
-    briefing: 'Keep a spare of game.txt without touching the original.',
-    objective: 'game-copy.txt exists in Projects, and game.txt is still there.',
-    hint: 'copy source.txt destination.txt',
-    xp: 75,
-    check: ({ vfs }) => isFile(vfs, `${P}\\game.txt`) && isFile(vfs, `${P}\\game-copy.txt`),
-  },
-  {
-    id: 'l1-m8',
-    levelId: 1,
-    order: 8,
-    title: 'Create Games Folder',
-    briefing: 'Game files belong together. Make a Games folder, then put game.txt in it.',
-    objective: 'Projects\\Games exists and contains game.txt.',
-    hint: 'mkdir then move.',
-    xp: 100,
-    check: ({ vfs }) => isFolder(vfs, `${P}\\Games`) && isFile(vfs, `${P}\\Games\\game.txt`),
-  },
-  {
-    id: 'l1-m9',
-    levelId: 1,
-    order: 9,
-    title: 'Delete',
-    briefing: 'school.txt is leftover. Remove it.',
-    objective: 'school.txt is gone from Projects.',
-    hint: 'del filename.txt',
-    xp: 75,
-    check: ({ vfs }) => !isFile(vfs, `${P}\\school.txt`),
-  },
-  {
-    id: 'l1-m10',
-    levelId: 1,
-    order: 10,
-    title: 'Organize',
+    id: 'm-school-setup',
+    order: 2,
+    title: 'School Assignment Setup',
+    difficulty: 'Starter',
+    scenario: 'A new biology assignment needs somewhere to live.',
     briefing:
-      'Put the lab in order. Notes should live in a Notes folder. Games should hold game.txt. Create anything that is missing.',
-    objective: 'Projects\\Notes\\notes.txt exists, and Projects\\Games\\game.txt exists.',
-    hint: 'mkdir, move, and create can all be used. End state is what counts.',
-    xp: 150,
-    check: ({ vfs }) => isFile(vfs, `${P}\\Notes\\notes.txt`) && isFile(vfs, `${P}\\Games\\game.txt`),
+      'Set up a folder for a biology assignment inside Documents: a place for notes, plus an empty essay and a sources file ready to write in.',
+    objective: 'Documents\\Biology contains a Notes folder, essay.txt, and sources.txt.',
+    hint: 'mkdir for the folders, touch for the two files. cd into Biology first if that feels easier.',
+    skills: ['mkdir', 'cd', 'touch'],
+    requiresLessonIds: ['files-3', 'files-6'],
+    xp: 90,
+    startCwd: DOCS,
+    setup: [
+      { type: 'ensureFolder', path: DOCS },
+      { type: 'cwd', path: DOCS },
+    ],
+    check: ({ vfs }) =>
+      isFolder(vfs, `${DOCS}\\Biology`) &&
+      isFolder(vfs, `${DOCS}\\Biology\\Notes`) &&
+      isFile(vfs, `${DOCS}\\Biology\\essay.txt`) &&
+      isFile(vfs, `${DOCS}\\Biology\\sources.txt`),
   },
   {
-    id: 'l1-m11',
-    levelId: 1,
-    order: 11,
-    title: 'Cleanup',
-    briefing: 'The Notes folder was a draft. Remove that folder.',
-    objective: 'Projects\\Notes no longer exists.',
-    hint: 'rmdir fails if the folder still has files. Empty it first, or use rmdir /s.',
-    xp: 100,
-    check: ({ vfs }) => !isFolder(vfs, `${P}\\Notes`),
-  },
-  {
-    id: 'l1-m12',
-    levelId: 1,
-    order: 12,
-    title: 'Final Challenge',
+    id: 'm-photo-organizer',
+    order: 3,
+    title: 'Photo Organizer',
+    difficulty: 'Intermediate',
+    scenario: 'Pictures is one long list of unsorted images.',
     briefing:
-      'Build a small project tree from memory. Name the root FinalProject. Inside it: README.txt, ideas.txt, and code.txt. Rename ideas.txt to project-ideas.txt. Add an Archive folder and place a copy of README.txt in it.',
+      'Pictures holds two holiday photos, a birthday photo, and a screenshot. Give each kind its own folder so the album makes sense.',
     objective:
-      'FinalProject contains README.txt, project-ideas.txt, code.txt, and Archive\\README.txt.',
-    hint: 'Home or Projects both count. The tree is what we check, not the keystrokes.',
-    xp: 300,
-    check: ({ vfs }) => {
-      const roots = [`${HOME}\\FinalProject`, `${P}\\FinalProject`];
-      return roots.some((root) => {
-        return (
-          isFile(vfs, `${root}\\README.txt`) &&
-          isFile(vfs, `${root}\\project-ideas.txt`) &&
-          isFile(vfs, `${root}\\code.txt`) &&
-          isFolder(vfs, `${root}\\Archive`) &&
-          isFile(vfs, `${root}\\Archive\\README.txt`) &&
-          !isFile(vfs, `${root}\\ideas.txt`)
-        );
-      });
-    },
+      'Pictures\\Holiday holds both holiday photos, Pictures\\Birthday holds birthday.jpg, Pictures\\Screenshots holds capture.png.',
+    hint: 'Three folders, then move each file into the right one. Move takes one file at a time.',
+    skills: ['mkdir', 'move', 'dir'],
+    requiresLessonIds: ['files-3', 'files-9'],
+    xp: 120,
+    startCwd: PICS,
+    setup: [
+      { type: 'ensureFile', path: `${PICS}\\holiday-1.jpg`, content: 'jpg' },
+      { type: 'ensureFile', path: `${PICS}\\holiday-2.jpg`, content: 'jpg' },
+      { type: 'ensureFile', path: `${PICS}\\birthday.jpg`, content: 'jpg' },
+      { type: 'ensureFile', path: `${PICS}\\capture.png`, content: 'png' },
+      { type: 'cwd', path: PICS },
+    ],
+    check: ({ vfs }) =>
+      isFile(vfs, `${PICS}\\Holiday\\holiday-1.jpg`) &&
+      isFile(vfs, `${PICS}\\Holiday\\holiday-2.jpg`) &&
+      isFile(vfs, `${PICS}\\Birthday\\birthday.jpg`) &&
+      isFile(vfs, `${PICS}\\Screenshots\\capture.png`),
+  },
+  {
+    id: 'm-lost-file',
+    order: 4,
+    title: 'Lost File',
+    difficulty: 'Intermediate',
+    scenario: 'Chemistry homework was saved in Downloads under a useless name.',
+    briefing:
+      'Downloads\\temp holds untitled.txt — it is actually your chemistry homework. Give it a real name and file it under Documents\\School. Nothing should be left in Downloads\\temp.',
+    objective: 'Documents\\School\\chemistry.txt exists and Downloads\\temp\\untitled.txt is gone.',
+    hint: 'You can cd into Downloads\\temp to look first. ren changes the name, move relocates it, and School has to exist before anything can move into it.',
+    skills: ['cd', 'dir', 'ren', 'move'],
+    requiresLessonIds: ['files-4', 'files-7', 'files-9'],
+    xp: 110,
+    startCwd: HOME,
+    setup: [
+      { type: 'ensureFile', path: `${DOWN}\\temp\\untitled.txt`, content: 'chemistry homework' },
+      { type: 'ensureFolder', path: DOCS },
+      { type: 'cwd', path: HOME },
+    ],
+    check: ({ vfs }) =>
+      isFile(vfs, `${DOCS}\\School\\chemistry.txt`) && !isFile(vfs, `${DOWN}\\temp\\untitled.txt`),
+  },
+  {
+    id: 'm-dev-workspace',
+    order: 5,
+    title: 'Developer Workspace',
+    difficulty: 'Advanced',
+    scenario: 'A new web project starts as an empty folder.',
+    briefing:
+      'Build the skeleton of a small website project under Projects\\app: a README at the top, a src folder holding index.html and styles.css, and an empty tests folder.',
+    objective: 'Projects\\app has README.md, src\\index.html, src\\styles.css, and a tests folder.',
+    hint: 'Create folders before the files that go inside them. Full paths like touch src\\styles.css save you a cd.',
+    skills: ['mkdir', 'touch', 'cd', 'paths'],
+    requiresLessonIds: ['files-5', 'files-6'],
+    xp: 150,
+    startCwd: HOME,
+    setup: [
+      { type: 'ensureFolder', path: PROJ },
+      { type: 'cwd', path: PROJ },
+    ],
+    check: ({ vfs }) =>
+      isFile(vfs, `${PROJ}\\app\\README.md`) &&
+      isFile(vfs, `${PROJ}\\app\\src\\index.html`) &&
+      isFile(vfs, `${PROJ}\\app\\src\\styles.css`) &&
+      isFolder(vfs, `${PROJ}\\app\\tests`),
+  },
+  {
+    id: 'm-cleanup-duty',
+    order: 6,
+    title: 'Cleanup Duty',
+    difficulty: 'Advanced',
+    scenario: 'An old scratch folder is full of junk, but one file matters.',
+    briefing:
+      'Projects\\old holds two throwaway .tmp files and one file worth keeping. Put a copy of keep.txt somewhere safe in Projects\\Backup, then get rid of Projects\\old entirely.',
+    objective: 'Projects\\Backup\\keep.txt exists and Projects\\old no longer exists.',
+    hint: 'Copy before you delete. rmdir refuses a folder that still has files in it — empty it first, or use rmdir /s.',
+    skills: ['copy', 'del', 'rmdir'],
+    requiresLessonIds: ['files-8', 'files-10'],
+    xp: 140,
+    startCwd: PROJ,
+    setup: [
+      { type: 'ensureFile', path: `${PROJ}\\old\\keep.txt`, content: 'important' },
+      { type: 'ensureFile', path: `${PROJ}\\old\\temp1.tmp`, content: 'junk' },
+      { type: 'ensureFile', path: `${PROJ}\\old\\temp2.tmp`, content: 'junk' },
+      { type: 'cwd', path: PROJ },
+    ],
+    check: ({ vfs }) => isFile(vfs, `${PROJ}\\Backup\\keep.txt`) && !isFolder(vfs, `${PROJ}\\old`),
   },
 ];
 
-export const LEVELS = [
-  { id: 1, name: 'Files', subtitle: 'Folders, names, copies, and cleanup.', lockedUntilXp: 0, implemented: true },
-  { id: 2, name: 'Applications', subtitle: 'Install and remove (coming later).', lockedUntilXp: 500, implemented: false },
-  { id: 3, name: 'System', subtitle: 'Machine info and settings (coming later).', lockedUntilXp: 1000, implemented: false },
-  { id: 4, name: 'Networking', subtitle: 'Simulated network commands (coming later).', lockedUntilXp: 1750, implemented: false },
-  { id: 5, name: 'Advanced', subtitle: 'Longer terminal workflows (coming later).', lockedUntilXp: 2500, implemented: false },
-];
-
-export const XP_THRESHOLDS = [0, 500, 1000, 1750, 2500];
-
-export function levelFromXp(xp: number): number {
-  let level = 1;
-  for (let i = 0; i < XP_THRESHOLDS.length; i += 1) {
-    if (xp >= XP_THRESHOLDS[i]) level = i + 1;
-  }
-  return Math.min(level, 5);
+export function missionById(id: string | undefined): MissionDef | undefined {
+  return MISSIONS.find((m) => m.id === id);
 }
 
-export function nextThreshold(xp: number): number | null {
-  const next = XP_THRESHOLDS.find((n) => n > xp);
-  return next ?? null;
+/** Lesson titles a learner still needs before a mission is fair. Empty means unlocked. */
+export function missingSkillsFor(mission: MissionDef, progress: UserProgress): string[] {
+  return mission.requiresLessonIds
+    .filter((id) => !progress.completedLessonIds.includes(id))
+    .map((id) => lessonById(id)?.title ?? id);
 }
 
-export function currentMission(completed: string[]): MissionDef | undefined {
-  return MISSIONS.find((m) => !completed.includes(m.id));
+export function missionUnlocked(mission: MissionDef, progress: UserProgress): boolean {
+  return missingSkillsFor(mission, progress).length === 0;
 }
 
-export function missionsForLevel(levelId: number): MissionDef[] {
-  return MISSIONS.filter((m) => m.levelId === levelId);
+/** The next mission worth suggesting: unlocked, not finished, easiest first. */
+export function recommendedMission(progress: UserProgress): MissionDef | undefined {
+  return MISSIONS.find((m) => !progress.completedMissionIds.includes(m.id) && missionUnlocked(m, progress));
 }

@@ -9,7 +9,7 @@ const SHORTCUTS = [
 ];
 
 const TIPS = [
-  'Missions watch the disk, not your keystrokes. If the folder exists, it counts.',
+  'Lessons watch the disk, not your keystrokes. If the folder exists, it counts.',
   'dir and ls both list a folder. Use whichever you remember.',
   'rmdir refuses a folder that still has files. Empty it, or use rmdir /s.',
   'Deleted Explorer items sit in Recycle Bin until you empty it.',

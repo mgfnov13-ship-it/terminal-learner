@@ -27,8 +27,8 @@ export const COMMANDS: CommandMeta[] = [
     name: 'mkdir',
     aliases: ['md'],
     category: 'Folders',
-    summary: 'Create a folder.',
-    usage: 'mkdir name',
+    summary: 'Creates a new directory.',
+    usage: 'mkdir <name>',
     example: 'mkdir Projects',
   },
   {

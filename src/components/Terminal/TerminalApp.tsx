@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { useOS, useOSApi } from '../../hooks/useOS';
 
+interface LogRow {
+  prompt: string;
+  command: string;
+  output?: string;
+  error?: boolean;
+  stamp?: string;
+}
+
 export function TerminalApp() {
-  const { cwd, settings } = useOS();
+  const { cwd, settings, highlightTerminal, awaitingInput, terminalFocusNonce } = useOS();
   const api = useOSApi();
-  const [log, setLog] = useState<{ text: string; error?: boolean; stamp?: string }[]>([]);
+  const [log, setLog] = useState<LogRow[]>([]);
   const [value, setValue] = useState('');
   const history = useRef<string[]>([]);
   const histIdx = useRef(-1);
@@ -19,13 +27,12 @@ export function TerminalApp() {
     input.current?.focus();
   }, []);
 
-  const prompt = cwd.endsWith('\\') ? `${cwd}>` : `${cwd}>`;
-  const font =
-    settings.terminalFont === 'ibm'
-      ? '"IBM Plex Mono", var(--font-mono)'
-      : settings.terminalFont === 'jetbrains'
-        ? '"JetBrains Mono", var(--font-mono)'
-        : 'var(--font-mono)';
+  // Academy's "Focus Terminal" button asks for the cursor without typing anything.
+  useEffect(() => {
+    if (terminalFocusNonce > 0) input.current?.focus();
+  }, [terminalFocusNonce]);
+
+  const prompt = `${cwd}>`;
 
   const submit = (line: string) => {
     const trimmed = line.trim();
@@ -35,7 +42,7 @@ export function TerminalApp() {
       ? new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
       : undefined;
     if (!trimmed) {
-      setLog((l) => [...l, { text: prompt, stamp }]);
+      setLog((l) => [...l, { prompt, command: '', stamp }]);
       return;
     }
     const result = api.run(line);
@@ -44,27 +51,44 @@ export function TerminalApp() {
       setValue('');
       return;
     }
-    const block = `${prompt} ${line}${result.output ? `\n${result.output}` : ''}`;
-    setLog((l) => [...l, { text: block, error: result.error, stamp }]);
+    setLog((l) => [...l, { prompt, command: line, output: result.output, error: result.error, stamp }]);
     setValue('');
   };
 
   return (
     <div
-      className="terminal"
-      style={{ fontSize: settings.terminalFontSize, fontFamily: font }}
+      className={`terminal${highlightTerminal || awaitingInput ? ' is-awaiting' : ''}`}
+      style={{ fontSize: settings.terminalFontSize }}
       onClick={() => input.current?.focus()}
     >
+      <div className="term-where">
+        <span>Current directory:</span>
+        <strong>{cwd}</strong>
+        <button
+          type="button"
+          className="term-focus"
+          onClick={(e) => {
+            e.stopPropagation();
+            input.current?.focus();
+          }}
+        >
+          Focus Terminal <kbd>⌘1</kbd>
+        </button>
+      </div>
       <div className="terminal-log" ref={scroller}>
         <p className="terminal-banner">
-          Terminal Academy [Version 1.0.0]
+          Terminal Space [Version 1.0.0]
           {'\n'}(c) Simulated environment. Commands do not leave this browser.
         </p>
         {log.map((row, i) => (
-          <pre key={i} className={row.error ? 'is-error' : undefined}>
-            {row.stamp ? <span className="term-stamp">{row.stamp} </span> : null}
-            {row.text}
-          </pre>
+          <div key={i} className="term-block">
+            <p className="term-line">
+              {row.stamp ? <span className="term-stamp">{row.stamp} </span> : null}
+              <span className="term-prompt">{row.prompt}</span>
+              {row.command}
+            </p>
+            {row.output ? <pre className={row.error ? 'is-error' : undefined}>{row.output}</pre> : null}
+          </div>
         ))}
       </div>
       <form

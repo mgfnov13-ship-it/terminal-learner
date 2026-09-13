@@ -20,8 +20,8 @@ export function BootScreen() {
 
   return (
     <main className="boot">
-      <p className="welcome-mark">TA</p>
-      <h1>Terminal Academy</h1>
+      <p className="welcome-mark">TS</p>
+      <h1>Terminal Space</h1>
       <p>Starting virtual computer…</p>
       <div className="boot-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
         <span style={{ width: `${pct}%` }} />

@@ -28,7 +28,7 @@ const ICON: Record<AppId, typeof Folder> = {
 };
 
 export function WindowManager() {
-  const { windows, focusedId } = useOS();
+  const { windows, focusedId, highlightTerminal } = useOS();
 
   return (
     <>
@@ -39,6 +39,7 @@ export function WindowManager() {
             key={win.id}
             win={win}
             focused={focusedId === win.id}
+            awaiting={win.appId === 'terminal' && highlightTerminal}
             icon={<Icon size={14} strokeWidth={1.5} />}
           >
             <WindowBody win={win} />

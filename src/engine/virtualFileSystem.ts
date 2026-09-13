@@ -54,7 +54,7 @@ export class VirtualFileSystem {
     add('downloads', 'Downloads', 'folder', 'student');
     add('pictures', 'Pictures', 'folder', 'student');
     add('program-files', 'Program Files', 'folder', 'c-drive');
-    add('ta-app', 'Terminal Academy', 'folder', 'program-files');
+    add('ta-app', 'Terminal Space', 'folder', 'program-files');
     add('windows', 'Windows', 'folder', 'c-drive');
     add('system32', 'System32', 'folder', 'windows');
     add('temp', 'Temp', 'folder', 'c-drive');
@@ -63,7 +63,7 @@ export class VirtualFileSystem {
       'readme.txt',
       'file',
       'ta-app',
-      'Terminal Academy virtual computer. Commands stay in this browser.',
+      'Terminal Space virtual computer. Commands stay in this browser.',
     );
     return vfs;
   }
@@ -383,14 +383,34 @@ export class VirtualFileSystem {
   }
 }
 
+/** Simulated free space, fixed so the listing reads the same every time. */
+const FREE_BYTES = 125_829_120_000;
+
 export function formatDirListing(vfs: VirtualFileSystem, path: string): string {
   const node = vfs.findByPath(path);
   if (!node || node.type !== 'folder') return 'File Not Found';
   const items = vfs.childrenOf(node.id);
-  const lines = [` Directory of ${vfs.nodePath(node.id)}`, ''];
+  const full = vfs.nodePath(node.id);
+  const lines = [
+    ' Volume in drive C has no label.',
+    ' Volume Serial Number is 1A2B-3C4D',
+    '',
+    ` Directory of ${full}`,
+    '',
+  ];
   let files = 0;
   let dirs = 0;
   let bytes = 0;
+
+  // Real cmd.exe lists the current and parent directory first.
+  const selfStamp = formatStamp(node.modifiedAt);
+  lines.push(`${selfStamp}    <DIR>          .`);
+  dirs += 1;
+  if (node.parentId) {
+    lines.push(`${selfStamp}    <DIR>          ..`);
+    dirs += 1;
+  }
+
   for (const item of items) {
     const stamp = formatStamp(item.modifiedAt);
     if (item.type === 'folder') {
@@ -403,9 +423,14 @@ export function formatDirListing(vfs: VirtualFileSystem, path: string): string {
       lines.push(`${stamp}            ${String(size).padStart(10, ' ')} ${item.name}`);
     }
   }
-  lines.push(`               ${files} File(s)         ${bytes} bytes`);
-  lines.push(`               ${dirs} Dir(s)`);
+
+  lines.push(`               ${files} File(s) ${group(bytes).padStart(14, ' ')} bytes`);
+  lines.push(`               ${dirs} Dir(s)  ${group(FREE_BYTES).padStart(14, ' ')} bytes free`);
   return lines.join('\n');
+}
+
+function group(n: number): string {
+  return n.toLocaleString('en-US');
 }
 
 export function formatLs(vfs: VirtualFileSystem, path: string): string {

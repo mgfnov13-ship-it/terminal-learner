@@ -1,6 +1,10 @@
 import { useOS, useOSApi } from '../../hooks/useOS';
 
 export function SettingsApp() {
+  return <SettingsBody />;
+}
+
+export function SettingsBody() {
   const { settings } = useOS();
   const api = useOSApi();
 
@@ -9,7 +13,7 @@ export function SettingsApp() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'terminal-academy-save.json';
+    a.download = 'terminal-space-save.json';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -31,6 +35,15 @@ export function SettingsApp() {
             </button>
           ))}
         </fieldset>
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={settings.reducedMotion}
+            onChange={(e) => api.patchSettings({ reducedMotion: e.target.checked })}
+          />
+          Reduce motion
+        </label>
+        <p className="muted">Typeface is fixed across the app so lessons and commands always look the same.</p>
       </section>
 
       <section>
@@ -46,23 +59,6 @@ export function SettingsApp() {
           />
           <span>{settings.terminalFontSize}px</span>
         </label>
-        <fieldset className="seg">
-          <legend>Font</legend>
-          {([
-            ['chivo', 'Chivo Mono'],
-            ['ibm', 'IBM Plex Mono'],
-            ['jetbrains', 'JetBrains Mono'],
-          ] as const).map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              className={settings.terminalFont === id ? 'is-on' : ''}
-              onClick={() => api.patchSettings({ terminalFont: id })}
-            >
-              {label}
-            </button>
-          ))}
-        </fieldset>
         <label className="check">
           <input
             type="checkbox"
@@ -89,10 +85,10 @@ export function SettingsApp() {
             checked={settings.showHints}
             onChange={(e) => api.patchSettings({ showHints: e.target.checked })}
           />
-          Show mission hints
+          Show lesson hints
         </label>
         <button type="button" onClick={() => api.resetCurrentMission()}>
-          Reset current mission
+          Restart current lesson
         </button>
         <button
           type="button"
@@ -100,7 +96,7 @@ export function SettingsApp() {
           onClick={() =>
             api.askConfirm({
               title: 'Reset all progress',
-              body: 'XP, missions, achievements, and the virtual disk go back to factory. This cannot be undone.',
+              body: 'XP, lessons, missions, achievements, and the virtual disk go back to factory. This cannot be undone.',
               confirmLabel: 'Reset progress',
               danger: true,
               onConfirm: () => api.resetProgress(),
@@ -137,15 +133,15 @@ export function SettingsApp() {
           type="button"
           onClick={() =>
             api.askConfirm({
-              title: 'Reset virtual computer',
-              body: 'Folders and files return to the factory tree. XP and missions stay.',
-              confirmLabel: 'Reset virtual computer',
+              title: 'Reset simulated filesystem',
+              body: 'Every folder and file you made is deleted and the disk returns to the current lesson or mission starting state. XP, lessons, and achievements are untouched.',
+              confirmLabel: 'Reset filesystem',
               danger: true,
               onConfirm: () => api.resetVfs(),
             })
           }
         >
-          Reset virtual computer
+          Reset simulated filesystem
         </button>
       </section>
     </div>

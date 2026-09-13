@@ -1,12 +1,14 @@
 import {
   Folder,
   GraduationCap,
+  HelpCircle,
   Monitor,
   Settings,
   TerminalSquare,
   Trash2,
 } from 'lucide-react';
-import { currentMission } from '../../data/missions';
+import { FILES_LESSONS } from '../../data/curriculum';
+import { activeLesson } from '../../engine/tutorial';
 import { useOS, useOSApi } from '../../hooks/useOS';
 
 const ICONS = [
@@ -16,13 +18,16 @@ const ICONS = [
   { id: 'recycle' as const, label: 'Recycle Bin', Icon: Trash2 },
   { id: 'settings' as const, label: 'Settings', Icon: Settings },
   { id: 'academy' as const, label: 'Academy', Icon: GraduationCap },
+  { id: 'help' as const, label: 'Help', Icon: HelpCircle },
 ];
 
 export function Desktop() {
-  const { progress, settings, vfs } = useOS();
+  const { progress, settings, vfs, windows } = useOS();
   const api = useOSApi();
-  const mission = currentMission(progress.completedMissionIds);
+  const lesson = activeLesson(progress);
+  const academyOpen = windows.some((w) => w.appId === 'academy' && !w.minimized);
   const desktopFiles = vfs.list('C:\\Users\\Student\\Desktop');
+  const slip = !academyOpen && !progress.completedLessonIds.includes(FILES_LESSONS[FILES_LESSONS.length - 1]?.id ?? '');
 
   return (
     <div
@@ -64,12 +69,12 @@ export function Desktop() {
           </button>
         ))}
       </nav>
-      {mission && (
+      {slip && (
         <aside className="brief-slip">
-          <p className="slip-kicker">Tonight’s brief</p>
-          <h2>{mission.title}</h2>
-          <p>{mission.briefing}</p>
-          {settings.showHints && <p className="slip-hint">{mission.hint}</p>}
+          <p className="slip-kicker">Today’s lesson</p>
+          <h2>{lesson.title}</h2>
+          <p>{lesson.subtitle}</p>
+          {settings.showHints && <p className="slip-hint">Open Academy to continue. The terminal is where you type.</p>}
           <button type="button" onClick={() => api.openApp('academy')}>
             Open Academy
           </button>

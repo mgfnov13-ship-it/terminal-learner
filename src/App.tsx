@@ -1,20 +1,43 @@
 import { useEffect } from 'react';
 import { Desktop } from './components/Desktop/Desktop';
+import { LabDock } from './components/Lab/LabDock';
+import { LabTopBar } from './components/Lab/LabTopBar';
 import { BootScreen } from './components/Onboarding/BootScreen';
 import { WelcomeScreen } from './components/Onboarding/WelcomeScreen';
-import { Taskbar } from './components/Taskbar/Taskbar';
 import { BurstLayer, ConfirmDialog, ContextMenu, ToastStack } from './components/UI/Chrome';
 import { WindowManager } from './components/Windows/WindowManager';
+import { useAppChrome } from './hooks/useAppChrome';
 import { useOS, useOSApi } from './hooks/useOS';
 
 export default function App() {
-  const { phase } = useOS();
+  const { phase, windows, settings } = useOS();
   const api = useOSApi();
-  const theme = api.resolvedTheme();
+  useAppChrome();
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
+    if (phase !== 'desktop') return;
+    if (windows.length === 0) api.openLearningWorkspace();
+  }, [phase, windows.length, api]);
+
+  useEffect(() => {
+    // The site's Homepage already covers this introductory messaging, so
+    // arriving at /academy skips the in-app welcome screen and goes
+    // straight to the boot transition.
+    if (phase === 'welcome') api.finishWelcome();
+  }, [phase, api]);
+
+  useEffect(() => {
+    let timer = 0;
+    const onResize = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => api.fitToStage(), 120);
+    };
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [api]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -24,19 +47,31 @@ export default function App() {
         api.cancelConfirm();
         api.setRenaming(null);
       }
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.key === '1') {
+        e.preventDefault();
+        api.focusTerminal();
+      }
+      if (e.key === '2') {
+        e.preventDefault();
+        api.patchSettings({ showHints: !settings.showHints });
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [api]);
+  }, [api, settings.showHints]);
 
   if (phase === 'welcome') return <WelcomeScreen />;
   if (phase === 'boot') return <BootScreen />;
 
   return (
     <div className="os-root">
-      <Desktop />
-      <WindowManager />
-      <Taskbar />
+      <LabTopBar />
+      <div className="lab-stage">
+        <Desktop />
+        <WindowManager />
+      </div>
+      <LabDock />
       <ToastStack />
       <ConfirmDialog />
       <ContextMenu />

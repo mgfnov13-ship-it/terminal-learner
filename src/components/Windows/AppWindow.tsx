@@ -10,9 +10,10 @@ interface Props {
   icon: ReactNode;
   children: ReactNode;
   focused: boolean;
+  awaiting?: boolean;
 }
 
-export function AppWindow({ win, icon, children, focused }: Props) {
+export function AppWindow({ win, icon, children, focused, awaiting }: Props) {
   const api = useOSApi();
   const drag = useRef<{ ox: number; oy: number; sx: number; sy: number } | null>(null);
   const resize = useRef<{ ox: number; oy: number; sw: number; sh: number } | null>(null);
@@ -43,12 +44,12 @@ export function AppWindow({ win, icon, children, focused }: Props) {
   }, [api, win.id]);
 
   const style = win.maximized
-    ? { left: 0, top: 0, width: '100%', height: 'calc(100% - var(--taskbar-h))', zIndex: win.z }
+    ? { left: 0, top: 0, width: '100%', height: '100%', zIndex: win.z }
     : { left: win.x, top: win.y, width: win.w, height: win.h, zIndex: win.z };
 
   return (
     <section
-      className={`app-window${focused ? ' is-focused' : ''}${win.minimized ? ' is-min' : ''}${win.maximized ? ' is-max' : ''}`}
+      className={`app-window${focused ? ' is-focused' : ''}${win.minimized ? ' is-min' : ''}${win.maximized ? ' is-max' : ''}${awaiting ? ' is-awaiting' : ''}`}
       style={style}
       onPointerDown={() => api.focus(win.id)}
       aria-label={win.title}

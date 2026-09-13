@@ -51,15 +51,14 @@ export interface WindowRecord {
 }
 
 export type Appearance = 'dark' | 'light' | 'system';
-export type TerminalFont = 'chivo' | 'ibm' | 'jetbrains';
 
 export interface SettingsState {
   appearance: Appearance;
   terminalFontSize: number;
-  terminalFont: TerminalFont;
   showTimestamps: boolean;
   sound: boolean;
   showHints: boolean;
+  reducedMotion: boolean;
 }
 
 export interface UserProgress {
@@ -72,17 +71,40 @@ export interface UserProgress {
   createdFolder: boolean;
   copiedFile: boolean;
   deletedItem: boolean;
+  currentLessonId: string;
+  currentStepIndex: number;
+  completedLessonIds: string[];
+  completedStepIds: string[];
+  awardedXpKeys: string[];
+  hintLevelByStep: Record<string, number>;
+  /** Permanent ledger: steps where the learner asked for the answer. Drives the unaided bonus. */
+  showedAnswerIds: string[];
+  /** The one step whose answer is currently on screen. Scoped to the current step. */
+  revealedAnswerStepId: string | null;
+  onboardingComplete: boolean;
+  academyTab: 'learn' | 'missions';
+  activeMissionId: string | null;
 }
+
+export type MissionDifficulty = 'Starter' | 'Intermediate' | 'Advanced';
 
 export interface MissionDef {
   id: string;
-  levelId: number;
   order: number;
   title: string;
+  difficulty: MissionDifficulty;
+  /** One line of situation, shown on the mission card. */
+  scenario: string;
   briefing: string;
   objective: string;
   hint: string;
+  /** Commands this mission exercises. Display only. */
+  skills: string[];
+  /** Lessons that must be finished first, so a mission never asks for untaught skills. */
+  requiresLessonIds: string[];
   xp: number;
+  startCwd: string;
+  setup: import('./tutorial').SetupOp[];
   check: (ctx: MissionContext) => boolean;
 }
 
@@ -92,18 +114,13 @@ export interface MissionContext {
   listedDirectories: boolean;
 }
 
-export interface LevelDef {
-  id: number;
-  name: string;
-  subtitle: string;
-  lockedUntilXp: number;
-  implemented: boolean;
-}
+export type AchievementCategory = 'Learning' | 'Terminal' | 'Files' | 'Missions' | 'Mastery';
 
 export interface AchievementDef {
   id: string;
   title: string;
   description: string;
+  category: AchievementCategory;
   check: (progress: UserProgress) => boolean;
 }
 
@@ -128,6 +145,8 @@ export interface CommandResult {
   deleted?: boolean;
   renamed?: boolean;
   moved?: boolean;
+  commandName?: string;
+  args?: string[];
 }
 
 export interface ToastItem {
@@ -152,6 +171,8 @@ export interface PersistedState {
   settings: SettingsState;
   seenWelcome: boolean;
   seenBoot: boolean;
+  /** Which lesson/mission the saved filesystem belongs to, so a refresh never rebuilds it. */
+  activeEnvId?: string;
 }
 
 export interface SessionFlags {

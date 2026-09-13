@@ -3,7 +3,7 @@ import { COMMANDS } from '../data/commands';
 import { splitRedirect, tokenize } from './paths';
 import { formatDirListing, formatLs, VirtualFileSystem } from './virtualFileSystem';
 
-const VERSION = 'Terminal Academy Virtual Computer [Version 1.0.0]';
+const VERSION = 'Terminal Space Virtual Computer [Version 1.0.0]';
 
 export function executeCommand(
   raw: string,
@@ -19,58 +19,68 @@ export function executeCommand(
   const args = tokens.slice(1);
 
   if (redirect) {
-    return handleRedirect(name, args, redirect, vfs, cwd, body);
+    const out = handleRedirect(name, args, redirect, vfs, cwd, body);
+    return { result: { ...out.result, commandName: name, args }, cwd: out.cwd };
   }
+
+  const tagged = (result: CommandResult, nextCwd: string): { result: CommandResult; cwd: string } => ({
+    result: { ...result, commandName: name, args },
+    cwd: nextCwd,
+  });
 
   switch (name) {
     case 'cd':
-      return handleCd(args, vfs, cwd);
+      return tagged(...spread(handleCd(args, vfs, cwd)));
     case 'pwd':
-      return { result: { output: cwd }, cwd };
+      return tagged({ output: cwd }, cwd);
     case 'dir':
-      return handleDir(args, vfs, cwd, 'dir');
+      return tagged(...spread(handleDir(args, vfs, cwd, 'dir')));
     case 'ls':
-      return handleDir(args, vfs, cwd, 'ls');
+      return tagged(...spread(handleDir(args, vfs, cwd, 'ls')));
     case 'mkdir':
     case 'md':
-      return handleMkdir(args, vfs, cwd);
+      return tagged(...spread(handleMkdir(args, vfs, cwd)));
     case 'touch':
-      return handleTouch(args, vfs, cwd);
+      return tagged(...spread(handleTouch(args, vfs, cwd)));
     case 'type':
-      return handleType(args, vfs, cwd);
+      return tagged(...spread(handleType(args, vfs, cwd)));
     case 'ren':
     case 'rename':
-      return handleRen(args, vfs, cwd);
+      return tagged(...spread(handleRen(args, vfs, cwd)));
     case 'copy':
-      return handleCopy(args, vfs, cwd);
+      return tagged(...spread(handleCopy(args, vfs, cwd)));
     case 'move':
-      return handleMove(args, vfs, cwd);
+      return tagged(...spread(handleMove(args, vfs, cwd)));
     case 'del':
     case 'erase':
-      return handleDel(args, vfs, cwd);
+      return tagged(...spread(handleDel(args, vfs, cwd)));
     case 'rmdir':
     case 'rd':
-      return handleRmdir(args, vfs, cwd);
+      return tagged(...spread(handleRmdir(args, vfs, cwd)));
     case 'cls':
     case 'clear':
-      return { result: { output: '', clear: true }, cwd };
+      return tagged({ output: '', clear: true }, cwd);
     case 'help':
-      return { result: { output: helpText(args[0]) }, cwd };
+      return tagged({ output: helpText(args[0]) }, cwd);
     case 'ver':
-      return { result: { output: VERSION }, cwd };
+      return tagged({ output: VERSION }, cwd);
     case 'echo':
-      return { result: { output: args.join(' ') }, cwd };
+      return tagged({ output: args.join(' ') }, cwd);
     case 'exit':
-      return { result: { output: '', exit: true }, cwd };
+      return tagged({ output: '', exit: true }, cwd);
     default:
-      return {
-        result: {
+      return tagged(
+        {
           output: `'${tokens[0]}' is not recognized as an internal or external command,\noperable program or batch file.`,
           error: true,
         },
         cwd,
-      };
+      );
   }
+}
+
+function spread(out: { result: CommandResult; cwd: string }): [CommandResult, string] {
+  return [out.result, out.cwd];
 }
 
 function handleRedirect(
@@ -205,10 +215,21 @@ function helpText(topic?: string): string {
       (c) => c.name === topic.toLowerCase() || c.aliases?.includes(topic.toLowerCase()),
     );
     if (!cmd) return `This command is not supported by the help utility.`;
-    return `${cmd.name}\n${cmd.summary}\n\nUsage: ${cmd.usage}\nExample: ${cmd.example}`;
+    return [
+      cmd.name,
+      cmd.summary,
+      '',
+      'Usage:',
+      cmd.usage,
+      '',
+      'Example:',
+      cmd.example,
+    ].join('\n');
   }
   const lines = [
-    'For more information on a specific command, type HELP command-name',
+    'AVAILABLE COMMANDS',
+    '',
+    'For help on one command, type: help <name>',
     '',
     ...COMMANDS.map((c) => `${c.name.padEnd(12, ' ')}${c.summary}`),
   ];
