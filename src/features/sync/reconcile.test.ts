@@ -17,6 +17,7 @@ function cloud(patch: Partial<CloudProgressSnapshot>): CloudProgressSnapshot {
     xpTotal: 0,
     currentLessonId: null,
     onboardingComplete: false,
+    settings: null,
     ...patch,
   };
 }

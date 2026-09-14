@@ -14,17 +14,19 @@ import {
 import type { FSNode, WindowRecord } from '../../types';
 import { HOME } from '../../engine/paths';
 import { useOS, useOSApi } from '../../hooks/useOS';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 
 const SIDE = [
-  { label: 'This PC', path: 'C:\\', icon: HardDrive },
-  { label: 'Desktop', path: `${HOME}\\Desktop`, icon: Home },
-  { label: 'Documents', path: `${HOME}\\Documents`, icon: Folder },
-  { label: 'Downloads', path: `${HOME}\\Downloads`, icon: Folder },
-  { label: 'Pictures', path: `${HOME}\\Pictures`, icon: Image },
-  { label: 'C:', path: 'C:\\', icon: HardDrive },
-];
+  { key: 'thispc', path: 'C:\\', icon: HardDrive },
+  { key: 'desktop', path: `${HOME}\\Desktop`, icon: Home, disk: 'Desktop' },
+  { key: 'documents', path: `${HOME}\\Documents`, icon: Folder, disk: 'Documents' },
+  { key: 'downloads', path: `${HOME}\\Downloads`, icon: Folder, disk: 'Downloads' },
+  { key: 'pictures', path: `${HOME}\\Pictures`, icon: Image, disk: 'Pictures' },
+  { key: 'c', path: 'C:\\', icon: HardDrive, disk: 'C:' },
+] as const;
 
 export function FileExplorerApp({ win }: { win: WindowRecord }) {
+  const { t, language } = usePreferences();
   const { vfs, renamingId } = useOS();
   const api = useOSApi();
   const [query, setQuery] = useState('');
@@ -47,7 +49,7 @@ export function FileExplorerApp({ win }: { win: WindowRecord }) {
   };
 
   const stamp = (ms: number) =>
-    new Date(ms).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    new Date(ms).toLocaleString(language === 'ar' ? 'ar' : undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   const crumbs = useMemo(() => {
     const parts = path.split('\\').filter(Boolean);
@@ -66,7 +68,8 @@ export function FileExplorerApp({ win }: { win: WindowRecord }) {
       <div className="explorer-toolbar">
         <button
           type="button"
-          aria-label="Back"
+          className="nav-back"
+          aria-label={t('back')}
           disabled={index <= 0}
           onClick={() =>
             api.updateWindow(win.id, { explorerPath: history[index - 1], explorerIndex: index - 1 })
@@ -76,7 +79,8 @@ export function FileExplorerApp({ win }: { win: WindowRecord }) {
         </button>
         <button
           type="button"
-          aria-label="Forward"
+          className="nav-forward"
+          aria-label={t('forward')}
           disabled={index >= history.length - 1}
           onClick={() =>
             api.updateWindow(win.id, { explorerPath: history[index + 1], explorerIndex: index + 1 })
@@ -86,7 +90,7 @@ export function FileExplorerApp({ win }: { win: WindowRecord }) {
         </button>
         <button
           type="button"
-          aria-label="Up"
+          aria-label={t('upFolder')}
           onClick={() => {
             const parts = path.split('\\').filter(Boolean);
             go(parts.length <= 1 ? 'C:\\' : parts.slice(0, -1).join('\\'));
@@ -94,7 +98,7 @@ export function FileExplorerApp({ win }: { win: WindowRecord }) {
         >
           <ArrowUp size={16} strokeWidth={1.5} />
         </button>
-        <button type="button" aria-label="Refresh" onClick={() => api.completeFromExplorer()}>
+        <button type="button" aria-label={t('refresh')} onClick={() => api.completeFromExplorer()}>
           <RefreshCw size={16} strokeWidth={1.5} />
         </button>
         <div className="address">
@@ -109,25 +113,25 @@ export function FileExplorerApp({ win }: { win: WindowRecord }) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search this folder"
-            aria-label="Search this folder"
+            placeholder={t('searchFolder')}
+            aria-label={t('searchFolder')}
           />
         </label>
         <div className="view-toggle">
           <button type="button" className={view === 'grid' ? 'is-on' : ''} onClick={() => api.updateWindow(win.id, { explorerView: 'grid' })}>
-            Grid
+            {t('gridView')}
           </button>
           <button type="button" className={view === 'list' ? 'is-on' : ''} onClick={() => api.updateWindow(win.id, { explorerView: 'list' })}>
-            List
+            {t('listView')}
           </button>
         </div>
       </div>
       <div className="explorer-main">
         <aside className="explorer-side">
           {SIDE.map((s) => (
-            <button key={s.label + s.path} type="button" className={path.toLowerCase() === s.path.toLowerCase() ? 'is-on' : ''} onClick={() => go(s.path)}>
+            <button key={s.key + s.path} type="button" className={path.toLowerCase() === s.path.toLowerCase() ? 'is-on' : ''} onClick={() => go(s.path)}>
               <s.icon size={16} strokeWidth={1.5} />
-              {s.label}
+              {'disk' in s && s.disk ? s.disk : t('thisPc')}
             </button>
           ))}
         </aside>
@@ -140,8 +144,8 @@ export function FileExplorerApp({ win }: { win: WindowRecord }) {
         >
           {!visible.length && (
             <div className="empty-state">
-              <p>This folder is empty.</p>
-              <p>Create a folder from Terminal or right-click here.</p>
+              <p>{t('emptyFolder')}</p>
+              <p>{t('emptyFolderHint')}</p>
             </div>
           )}
           {visible.map((node) => (
@@ -172,7 +176,7 @@ export function FileExplorerApp({ win }: { win: WindowRecord }) {
               )}
               {view === 'list' && (
                 <>
-                  <span className="fs-kind">{node.type === 'folder' ? 'Folder' : 'Text file'}</span>
+                  <span className="fs-kind">{node.type === 'folder' ? t('folderKind') : t('textFile')}</span>
                   <span className="fs-date">{stamp(node.modifiedAt)}</span>
                 </>
               )}

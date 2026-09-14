@@ -1,15 +1,17 @@
 import { useOSApi } from '../../hooks/useOS';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 
 export function WelcomeScreen() {
   const api = useOSApi();
+  const { t } = usePreferences();
   return (
     <main className="welcome">
       <p className="welcome-mark">TS</p>
-      <h1>Terminal Space</h1>
-      <p>You’ll learn the terminal by actually using one.</p>
-      <p>Everything here runs inside a safe simulated computer, so experiment freely. Commands never leave this browser.</p>
+      <h1>{t('appName')}</h1>
+      <p>{t('welcomeLearn')}</p>
+      <p>{t('welcomeSafe')}</p>
       <button type="button" className="btn-primary" onClick={() => api.finishWelcome()}>
-        Continue
+        {t('continue')}
       </button>
     </main>
   );

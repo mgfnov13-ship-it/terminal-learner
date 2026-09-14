@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { useOS, useOSApi } from '../../hooks/useOS';
+import { LiveRegion } from '../UI/Feedback';
 
 interface LogRow {
   prompt: string;
@@ -12,22 +14,24 @@ interface LogRow {
 export function TerminalApp() {
   const { cwd, settings, highlightTerminal, awaitingInput, terminalFocusNonce } = useOS();
   const api = useOSApi();
+  const { t, language } = usePreferences();
   const [log, setLog] = useState<LogRow[]>([]);
   const [value, setValue] = useState('');
   const history = useRef<string[]>([]);
   const histIdx = useRef(-1);
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
+  const lastAnnounce = log[log.length - 1];
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight });
   }, [log]);
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 720) return;
     input.current?.focus();
   }, []);
 
-  // Academy's "Focus Terminal" button asks for the cursor without typing anything.
   useEffect(() => {
     if (terminalFocusNonce > 0) input.current?.focus();
   }, [terminalFocusNonce]);
@@ -39,7 +43,11 @@ export function TerminalApp() {
     if (trimmed) history.current.push(trimmed);
     histIdx.current = -1;
     const stamp = settings.showTimestamps
-      ? new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      ? new Date().toLocaleTimeString(language === 'ar' ? 'ar' : undefined, {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
       : undefined;
     if (!trimmed) {
       setLog((l) => [...l, { prompt, command: '', stamp }]);
@@ -59,11 +67,13 @@ export function TerminalApp() {
     <div
       className={`terminal${highlightTerminal || awaitingInput ? ' is-awaiting' : ''}`}
       style={{ fontSize: settings.terminalFontSize }}
+      lang="en"
+      dir="ltr"
       onClick={() => input.current?.focus()}
     >
       <div className="term-where">
-        <span>Current directory:</span>
-        <strong>{cwd}</strong>
+        <span>{t('currentDirectory')}</span>
+        <strong dir="ltr">{cwd}</strong>
         <button
           type="button"
           className="term-focus"
@@ -72,7 +82,7 @@ export function TerminalApp() {
             input.current?.focus();
           }}
         >
-          Focus Terminal <kbd>⌘1</kbd>
+          {t('focusTerminal')} <kbd>⌘1</kbd>
         </button>
       </div>
       <div className="terminal-log" ref={scroller}>
@@ -91,6 +101,13 @@ export function TerminalApp() {
           </div>
         ))}
       </div>
+      <LiveRegion>
+        {lastAnnounce?.output
+          ? `${lastAnnounce.command}. ${lastAnnounce.output}`
+          : lastAnnounce?.command
+            ? lastAnnounce.command
+            : ''}
+      </LiveRegion>
       <form
         className="terminal-input-row"
         onSubmit={(e) => {
@@ -109,6 +126,7 @@ export function TerminalApp() {
           autoCorrect="off"
           spellCheck={false}
           autoComplete="off"
+          dir="ltr"
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'ArrowUp') {

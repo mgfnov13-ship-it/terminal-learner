@@ -1,8 +1,12 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { DirArrow } from '../../components/UI/Primitives';
+import { DEMO_COPY, HOME_COPY } from '../../data/pageCopy';
 import { executeCommand } from '../../engine/commandParser';
 import { HOME } from '../../engine/paths';
 import { VirtualFileSystem } from '../../engine/virtualFileSystem';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 
 interface Line {
   cwd: string;
@@ -16,6 +20,8 @@ interface Line {
  * completion, no sign-in — resets to a fresh disk on every page load.
  */
 export function DemoPage() {
+  const { t, bi } = usePreferences();
+  usePageTitle(t('demo'));
   const [vfs] = useState(() => VirtualFileSystem.seed());
   const [cwd, setCwd] = useState(HOME);
   const [lines, setLines] = useState<Line[]>([]);
@@ -36,21 +42,27 @@ export function DemoPage() {
   return (
     <>
       <section className="path-head">
-        <p className="kicker">Demo</p>
-        <h1>Try it yourself — no account needed</h1>
-        <p className="lede">
-          This is a real, isolated simulated computer. Nothing you do here touches an account or saves anywhere —
-          reload the page for a clean disk.
-        </p>
+        <p className="kicker">{bi(DEMO_COPY.kicker)}</p>
+        <h1>{bi(DEMO_COPY.title)}</h1>
+        <p className="lede">{bi(DEMO_COPY.lede)}</p>
       </section>
 
       <div className="demo-shell">
-        <div className="demo-terminal" onClick={() => inputRef.current?.focus()}>
-          <p className="transcript-label">Terminal · simulated</p>
+        <div className="demo-terminal" dir="ltr" lang="en" onClick={() => inputRef.current?.focus()}>
+          <p className="transcript-label">{bi(HOME_COPY.transcriptLabel)}</p>
           <div className="demo-lines">
             {lines.length === 0 && (
               <p className="demo-hint">
-                Try typing <code>dir</code> and press Enter to see what's here.
+                {bi(DEMO_COPY.hint).split('dir').map((part, i, arr) =>
+                  i < arr.length - 1 ? (
+                    <span key={i}>
+                      {part}
+                      <code>dir</code>
+                    </span>
+                  ) : (
+                    <span key={i}>{part}</span>
+                  ),
+                )}
               </p>
             )}
             {lines.map((l, i) => (
@@ -70,30 +82,36 @@ export function DemoPage() {
               value={input}
               autoComplete="off"
               spellCheck={false}
-              aria-label="Demo terminal input"
+              dir="ltr"
+              aria-label={bi(DEMO_COPY.inputAria)}
               onChange={(e) => setInput(e.target.value)}
             />
           </form>
         </div>
         <aside className="proof-card">
-          <p className="brief-label">Guide · try it</p>
-          <h2>List a folder</h2>
+          <p className="brief-label">{bi(DEMO_COPY.briefLabel)}</p>
+          <h2>{bi(DEMO_COPY.proofTitle)}</h2>
           <p>
-            <strong>Your turn.</strong> Type <code>dir</code> and press Enter.
+            <strong>{t('yourTurn')}</strong> {bi(DEMO_COPY.proofBody).split('dir').map((part, i, arr) =>
+              i < arr.length - 1 ? (
+                <span key={i}>
+                  {part}
+                  <code>dir</code>
+                </span>
+              ) : (
+                <span key={i}>{part}</span>
+              ),
+            )}
           </p>
-          <p className="proof-card-note">
-            {ranDir
-              ? "dir lists the contents of your current directory. That's the whole loop — read, try, see what changed."
-              : 'dir lists the contents of your current directory.'}
-          </p>
+          <p className="proof-card-note">{bi(ranDir ? DEMO_COPY.after : DEMO_COPY.before)}</p>
         </aside>
       </div>
 
       <section className="closing">
-        <p className="kicker">Want the full learning path?</p>
-        <h2>Files teaches this and a lot more.</h2>
+        <p className="kicker">{bi(DEMO_COPY.closingKicker)}</p>
+        <h2>{bi(DEMO_COPY.closingTitle)}</h2>
         <Link className="btn-chip" to="/auth/sign-up">
-          Create free account <span aria-hidden>→</span>
+          {bi(DEMO_COPY.createAccount)} <DirArrow />
         </Link>
       </section>
     </>

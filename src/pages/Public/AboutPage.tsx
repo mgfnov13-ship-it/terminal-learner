@@ -1,46 +1,41 @@
 import { Link } from 'react-router-dom';
+import { DirArrow } from '../../components/UI/Primitives';
+import { ABOUT_COPY } from '../../data/pageCopy';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 
 export function AboutPage() {
+  const { t, bi } = usePreferences();
+  usePageTitle(t('about'));
   return (
     <>
       <section className="path-head">
-        <p className="kicker">About</p>
-        <h1>Why Terminal Space exists</h1>
-        <p className="lede">
-          Terminal learning is usually passive. People watch a tutorial or copy a command from a cheat sheet without
-          understanding where they are, what changed, or why the command worked.
-        </p>
+        <p className="kicker">{bi(ABOUT_COPY.kicker)}</p>
+        <h1>{bi(ABOUT_COPY.title)}</h1>
+        <p className="lede">{bi(ABOUT_COPY.lede)}</p>
       </section>
 
       <section className="numbered">
-        <p className="section-index">Philosophy</p>
+        <p className="section-index">{bi(ABOUT_COPY.philIndex)}</p>
         <div className="numbered-body">
-          <h2>Learn. Try. Understand. Apply.</h2>
-          <p>
-            Terminal Space teaches through interaction. Every lesson pairs an explanation with a real simulated
-            terminal, so the idea and the practice happen in the same breath. Missions then remove the guidance and
-            ask you to apply what you've learned to an actual scenario.
-          </p>
+          <h2>{bi(ABOUT_COPY.philTitle)}</h2>
+          <p>{bi(ABOUT_COPY.philBody)}</p>
         </div>
       </section>
 
       <section className="numbered">
-        <p className="section-index">What it is not</p>
+        <p className="section-index">{bi(ABOUT_COPY.notIndex)}</p>
         <div className="numbered-body">
-          <h2>Not a game. Not a video course.</h2>
-          <p>
-            The simulated computer exists to teach, not to entertain. Terminal Space doesn't touch your real machine,
-            doesn't need an install, and doesn't pretend to be more finished than it is — planned content is labeled
-            planned, not hidden behind a fake progress bar.
-          </p>
+          <h2>{bi(ABOUT_COPY.notTitle)}</h2>
+          <p>{bi(ABOUT_COPY.notBody)}</p>
         </div>
       </section>
 
       <section className="closing">
-        <p className="kicker">Ready to try it</p>
-        <h2>Start with the Files track.</h2>
+        <p className="kicker">{bi(ABOUT_COPY.ready)}</p>
+        <h2>{bi(ABOUT_COPY.startFiles)}</h2>
         <Link className="btn-chip" to="/tracks/files">
-          See the Files track <span aria-hidden>→</span>
+          {bi(ABOUT_COPY.seeFiles)} <DirArrow />
         </Link>
       </section>
     </>

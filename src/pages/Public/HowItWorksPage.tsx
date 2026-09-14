@@ -1,39 +1,29 @@
 import { Link } from 'react-router-dom';
-
-const STAGES = [
-  { step: '1.0', title: 'Learn', body: 'The Guide explains one idea at a time — what a command is for, and what each part of it means.' },
-  { step: '2.0', title: 'Try', body: 'You type the command yourself into a real simulated terminal. Nothing is pre-filled and nothing runs itself.' },
-  { step: '3.0', title: 'Feedback', body: 'Terminal Space watches the simulated filesystem afterward. Any command that produces the right result is accepted; mistakes get explained.' },
-  { step: '4.0', title: 'Apply', body: 'Hints disappear as you go, then missions drop you into a messy scenario with no step-by-step guidance.' },
-];
-
-const DIFFERENCE = [
-  ['Real practice', "Don't just watch commands. Run them."],
-  ['Safe environment', 'Everything happens inside a simulated computer. Your real files are untouched.'],
-  ["Understand, don't memorize", 'Terminal Space explains what a command does and why, not just what to type.'],
-  ['Real missions', 'Apply several commands to an actual scenario, without a script to follow.'],
-  ['Instant feedback', 'Mistakes become teaching moments instead of dead ends.'],
-  ['Progressive difficulty', 'Guidance gradually disappears as your confidence grows.'],
-];
+import { DirArrow } from '../../components/UI/Primitives';
+import { HOW_COPY } from '../../data/pageCopy';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 
 export function HowItWorksPage() {
+  const { t, bi } = usePreferences();
+  usePageTitle(t('howItWorks'));
   return (
     <>
       <section className="path-head">
-        <p className="kicker">How it works</p>
-        <h1>Four things happen in every lesson.</h1>
-        <p className="lede">Learn the terminal by actually using it, not by watching someone else use it.</p>
+        <p className="kicker">{bi(HOW_COPY.kicker)}</p>
+        <h1>{bi(HOW_COPY.title)}</h1>
+        <p className="lede">{bi(HOW_COPY.lede)}</p>
       </section>
 
       <section className="numbered">
         <div className="numbered-body">
           <ol className="stages">
-            {STAGES.map((s) => (
+            {HOW_COPY.stages.map((s) => (
               <li key={s.step}>
                 <span className="stage-num">{s.step}</span>
                 <div>
-                  <h3>{s.title}</h3>
-                  <p>{s.body}</p>
+                  <h3>{bi(s.title)}</h3>
+                  <p>{bi(s.body)}</p>
                 </div>
               </li>
             ))}
@@ -42,14 +32,14 @@ export function HowItWorksPage() {
       </section>
 
       <section className="numbered">
-        <p className="section-index">Why Terminal Space</p>
+        <p className="section-index">{bi(HOW_COPY.whyIndex)}</p>
         <div className="numbered-body">
-          <h2>Not a video. Not a cheat sheet.</h2>
+          <h2>{bi(HOW_COPY.whyTitle)}</h2>
           <dl className="reasons">
-            {DIFFERENCE.map(([term, detail]) => (
-              <div key={term}>
-                <dt>{term}</dt>
-                <dd>{detail}</dd>
+            {HOW_COPY.difference.map(([term, detail]) => (
+              <div key={term.en}>
+                <dt>{bi(term)}</dt>
+                <dd>{bi(detail)}</dd>
               </div>
             ))}
           </dl>
@@ -57,10 +47,10 @@ export function HowItWorksPage() {
       </section>
 
       <section className="closing">
-        <p className="kicker">See it for yourself</p>
-        <h2>Try one command, no account needed.</h2>
+        <p className="kicker">{bi(HOW_COPY.seeKicker)}</p>
+        <h2>{bi(HOW_COPY.seeTitle)}</h2>
         <Link className="btn-chip" to="/demo">
-          Try the demo <span aria-hidden>→</span>
+          {bi(HOW_COPY.tryDemo)} <DirArrow />
         </Link>
       </section>
     </>

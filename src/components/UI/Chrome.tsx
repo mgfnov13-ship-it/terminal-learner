@@ -1,3 +1,5 @@
+import { useEffect, useId, useRef } from 'react';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { useOS, useOSApi } from '../../hooks/useOS';
 
 export function ToastStack() {
@@ -18,28 +20,67 @@ export function ToastStack() {
 export function ConfirmDialog() {
   const { confirm } = useOS();
   const api = useOSApi();
-  if (!confirm) return null;
+  const { t } = usePreferences();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+  const bodyId = useId();
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (confirm && !dialog.open) {
+      returnFocusRef.current = document.activeElement as HTMLElement | null;
+      dialog.showModal();
+    }
+    if (!confirm && dialog.open) dialog.close();
+  }, [confirm]);
+
   return (
-    <div className="modal-scrim" onClick={() => api.cancelConfirm()}>
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title" onClick={(e) => e.stopPropagation()}>
-        <h2 id="confirm-title">{confirm.title}</h2>
-        <p>{confirm.body}</p>
-        <div className="row-actions">
-          <button type="button" onClick={() => api.cancelConfirm()}>
-            Cancel
-          </button>
-          <button type="button" className={confirm.danger ? 'btn-danger' : 'btn-primary'} onClick={() => api.runConfirm()}>
-            {confirm.confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+    <dialog
+      className="confirm-dialog"
+      ref={dialogRef}
+      data-tone={confirm?.danger ? 'danger' : 'default'}
+      aria-labelledby={titleId}
+      aria-describedby={confirm?.body ? bodyId : undefined}
+      onClose={() => {
+        returnFocusRef.current?.focus();
+        returnFocusRef.current = null;
+      }}
+      onCancel={(event) => {
+        event.preventDefault();
+        api.cancelConfirm();
+      }}
+      onClick={(event) => {
+        if (event.target === dialogRef.current) api.cancelConfirm();
+      }}
+    >
+      {confirm ? (
+        <>
+          <h2 id={titleId}>{confirm.title}</h2>
+          {confirm.body ? <p id={bodyId}>{confirm.body}</p> : null}
+          <div className="row-actions">
+            <button type="button" onClick={() => api.cancelConfirm()}>
+              {t('cancel')}
+            </button>
+            <button
+              type="button"
+              className={confirm.danger ? 'btn-danger' : 'btn-primary'}
+              onClick={() => api.runConfirm()}
+            >
+              {confirm.confirmLabel}
+            </button>
+          </div>
+        </>
+      ) : null}
+    </dialog>
   );
 }
 
 export function ContextMenu() {
   const { contextMenu, vfs } = useOS();
   const api = useOSApi();
+  const { bi } = usePreferences();
   if (!contextMenu) return null;
   const { x, y, path, nodeId } = contextMenu;
   const node = nodeId ? vfs.get(nodeId) : undefined;
@@ -53,17 +94,29 @@ export function ContextMenu() {
             api.setContextMenu(null);
           }}
         >
-          Open
+          {bi({ en: 'Open', ar: 'فتح' })}
         </button>
       )}
       {nodeId && (
-        <button type="button" onClick={() => { api.setRenaming(nodeId); api.setContextMenu(null); }}>
-          Rename
+        <button
+          type="button"
+          onClick={() => {
+            api.setRenaming(nodeId);
+            api.setContextMenu(null);
+          }}
+        >
+          {bi({ en: 'Rename', ar: 'إعادة تسمية' })}
         </button>
       )}
       {nodeId && (
-        <button type="button" onClick={() => { api.explorerCopy(nodeId); api.setContextMenu(null); }}>
-          Copy
+        <button
+          type="button"
+          onClick={() => {
+            api.explorerCopy(nodeId);
+            api.setContextMenu(null);
+          }}
+        >
+          {bi({ en: 'Copy', ar: 'نسخ' })}
         </button>
       )}
       {nodeId && (
@@ -74,7 +127,7 @@ export function ContextMenu() {
             api.setContextMenu(null);
           }}
         >
-          Delete
+          {bi({ en: 'Delete', ar: 'حذف' })}
         </button>
       )}
       <button
@@ -84,10 +137,16 @@ export function ContextMenu() {
           api.setContextMenu(null);
         }}
       >
-        New folder
+        {bi({ en: 'New folder', ar: 'مجلد جديد' })}
       </button>
-      <button type="button" onClick={() => { api.completeFromExplorer(); api.setContextMenu(null); }}>
-        Refresh
+      <button
+        type="button"
+        onClick={() => {
+          api.completeFromExplorer();
+          api.setContextMenu(null);
+        }}
+      >
+        {bi({ en: 'Refresh', ar: 'تحديث' })}
       </button>
     </div>
   );
@@ -95,10 +154,15 @@ export function ContextMenu() {
 
 export function BurstLayer() {
   const { xpBurst, levelBurst } = useOS();
+  const { t } = usePreferences();
   return (
     <div className="bursts" aria-hidden>
       {xpBurst > 0 && <div className="xp-pop">+{xpBurst} XP</div>}
-      {levelBurst && <div className="lvl-pop">Level {levelBurst}</div>}
+      {levelBurst && (
+        <div className="lvl-pop">
+          {t('level')} {levelBurst}
+        </div>
+      )}
     </div>
   );
 }

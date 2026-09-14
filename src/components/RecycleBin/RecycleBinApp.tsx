@@ -1,7 +1,9 @@
 import { Trash2 } from 'lucide-react';
 import { useOS, useOSApi } from '../../hooks/useOS';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 
 export function RecycleBinApp() {
+  const { t, bi } = usePreferences();
   const { vfs } = useOS();
   const api = useOSApi();
   const items = vfs.recycle;
@@ -15,22 +17,22 @@ export function RecycleBinApp() {
           disabled={!items.length}
           onClick={() =>
             api.askConfirm({
-              title: 'Empty Recycle Bin',
-              body: 'Permanently delete every item in Recycle Bin? This cannot be undone.',
-              confirmLabel: 'Empty Recycle Bin',
+              title: t('emptyRecycle'),
+              body: t('emptyRecycleConfirm'),
+              confirmLabel: t('emptyRecycle'),
               danger: true,
               onConfirm: () => api.emptyRecycle(),
             })
           }
         >
-          Empty Recycle Bin
+          {t('emptyRecycle')}
         </button>
       </div>
       {!items.length ? (
         <div className="empty-state">
           <Trash2 size={28} strokeWidth={1.4} />
-          <p>Recycle Bin is empty.</p>
-          <p>Deleted files from Explorer land here until you restore or empty them.</p>
+          <p>{t('recycleEmpty')}</p>
+          <p>{t('recycleEmptyHint')}</p>
         </div>
       ) : (
         <ul className="recycle-list">
@@ -38,25 +40,28 @@ export function RecycleBinApp() {
             <li key={entry.node.id}>
               <div>
                 <strong>{entry.node.name}</strong>
-                <span>{entry.originalPath}</span>
+                <span dir="ltr">{entry.originalPath}</span>
               </div>
               <div className="row-actions">
                 <button type="button" onClick={() => api.restoreRecycle(i)}>
-                  Restore
+                  {t('restore')}
                 </button>
                 <button
                   type="button"
                   onClick={() =>
                     api.askConfirm({
-                      title: `Delete ${entry.node.name}`,
-                      body: 'Permanently delete this item from Recycle Bin?',
-                      confirmLabel: 'Delete permanently',
+                      title: bi({ en: `Delete ${entry.node.name}`, ar: `حذف ${entry.node.name}` }),
+                      body: bi({
+                        en: 'Permanently delete this item from Recycle Bin?',
+                        ar: 'حذف هذا العنصر نهائياً من سلة المحذوفات؟',
+                      }),
+                      confirmLabel: t('deletePermanently'),
                       danger: true,
                       onConfirm: () => api.purgeRecycle(i),
                     })
                   }
                 >
-                  Delete permanently
+                  {t('deletePermanently')}
                 </button>
               </div>
             </li>

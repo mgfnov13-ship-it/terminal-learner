@@ -1,5 +1,6 @@
 import type { CoachMessage, TutorialStep, ValidateContext } from '../types/tutorial';
 import { COMMANDS } from '../data/commands';
+import { L } from '../lib/i18n';
 import { baseName, resolvePath } from './paths';
 
 const TYPOS: Record<string, string> = {
@@ -54,15 +55,21 @@ export function coachForStep(step: TutorialStep, ctx: ValidateContext): CoachMes
     if (mapped) {
       return {
         tone: 'try',
-        title: 'Unknown command',
-        body: `It looks like you typed '${cmd.name}'. The command for this step is '${mapped}'.`,
+        title: L('Unknown command', 'أمر غير معروف'),
+        body: L(
+          `It looks like you typed '${cmd.name}'. The command for this step is '${mapped}'.`,
+          `يبدو أنك كتبت '${cmd.name}'. أمر هذه الخطوة هو '${mapped}'.`,
+        ),
       };
     }
     if (expect) {
       return {
         tone: 'try',
-        title: 'Unknown command',
-        body: `'${cmd.name}' is not a command this terminal knows. For this step, start with ${expect}.`,
+        title: L('Unknown command', 'أمر غير معروف'),
+        body: L(
+          `'${cmd.name}' is not a command this terminal knows. For this step, start with ${expect}.`,
+          `'${cmd.name}' ليس أمراً تعرفه هذه الطرفية. لهذه الخطوة ابدأ بـ ${expect}.`,
+        ),
       };
     }
   }
@@ -70,8 +77,11 @@ export function coachForStep(step: TutorialStep, ctx: ValidateContext): CoachMes
   if ((typed === 'mkdir' || typed === 'md') && !cmd.args.length) {
     return {
       tone: 'try',
-      title: 'mkdir needs a name',
-      body: 'mkdir needs a name. Try giving the new directory a name after the command.',
+      title: L('mkdir needs a name', 'mkdir يحتاج اسماً'),
+      body: L(
+        'mkdir needs a name. Try giving the new directory a name after the command.',
+        'mkdir يحتاج اسماً. اكتب اسم المجلد الجديد بعد الأمر.',
+      ),
     };
   }
 
@@ -85,15 +95,21 @@ export function coachForStep(step: TutorialStep, ctx: ValidateContext): CoachMes
       if (!existsWanted && existsGiven && !namesMatch(given, wantName) && cmd.createdFolder) {
         return {
           tone: 'try',
-          title: 'Folder created — wrong name',
-          body: `You created a folder successfully, but this step needs one named '${wantName}'.`,
+          title: L('Folder created — wrong name', 'أُنشئ المجلد — الاسم خطأ'),
+          body: L(
+            `You created a folder successfully, but this step needs one named '${wantName}'.`,
+            `أنشأت مجلداً بنجاح، لكن هذه الخطوة تحتاج مجلداً اسمه '${wantName}'.`,
+          ),
         };
       }
       if (!existsWanted && namesMatch(given, wantName) && createdPath.toLowerCase() !== path.toLowerCase()) {
         return {
           tone: 'try',
-          title: 'Right folder, wrong place',
-          body: `You created ${wantName} inside ${cmd.cwdAfter}, but this step wants ${path}. Use cd to move there, or type the full path.`,
+          title: L('Right folder, wrong place', 'المجلد صحيح، المكان خطأ'),
+          body: L(
+            `You created ${wantName} inside ${cmd.cwdAfter}, but this step wants ${path}. Use cd to move there, or type the full path.`,
+            `أنشأت ${wantName} داخل ${cmd.cwdAfter}، لكن هذه الخطوة تريد ${path}. استخدم cd للانتقال إلى هناك، أو اكتب المسار كاملاً.`,
+          ),
         };
       }
     }
@@ -102,8 +118,8 @@ export function coachForStep(step: TutorialStep, ctx: ValidateContext): CoachMes
   if (expect === 'echo' && typed && typed !== 'echo') {
     return {
       tone: 'try',
-      title: 'Try echo',
-      body: 'echo prints whatever you type after it. Example: echo Hello',
+      title: L('Try echo', 'جرّب echo'),
+      body: L('echo prints whatever you type after it. Example: echo Hello', 'echo يطبع ما تكتبه بعده. مثال: echo Hello'),
     };
   }
 
@@ -112,8 +128,8 @@ export function coachForStep(step: TutorialStep, ctx: ValidateContext): CoachMes
     if (!aliases.includes(typed)) {
       return {
         tone: 'try',
-        title: 'Different command',
-        body: `That ran ${typed}. This step is about ${expect}.`,
+        title: L('Different command', 'أمر مختلف'),
+        body: L(`That ran ${typed}. This step is about ${expect}.`, `هذا شغّل ${typed}. هذه الخطوة عن ${expect}.`),
       };
     }
   }
@@ -121,7 +137,7 @@ export function coachForStep(step: TutorialStep, ctx: ValidateContext): CoachMes
   if (cmd.error && cmd.output) {
     return {
       tone: 'try',
-      title: 'The terminal reported an error',
+      title: L('The terminal reported an error', 'الطرفية أبلغت عن خطأ'),
       body: explainGeneric(cmd.output, expect),
     };
   }
@@ -129,11 +145,14 @@ export function coachForStep(step: TutorialStep, ctx: ValidateContext): CoachMes
   if (step.kind === 'try' || step.kind === 'mission' || step.kind === 'check') {
     return {
       tone: 'info',
-      title: 'Not there yet',
+      title: L('Not there yet', 'لم تصل بعد'),
       body:
         step.guidance === 'independent'
-          ? 'The lab is watching the folders and files, not a single exact command. Keep going.'
-          : 'Try again in the Terminal. Use a hint if you want a nudge.',
+          ? L(
+              'The lab is watching the folders and files, not a single exact command. Keep going.',
+              'المختبر يراقب المجلدات والملفات، لا أمراً واحداً حرفياً. واصل.',
+            )
+          : L('Try again in the Terminal. Use a hint if you want a nudge.', 'أعد المحاولة في الطرفية. استخدم تلميحاً إن أردت دفعة.'),
     };
   }
 
@@ -147,44 +166,61 @@ export function successCoach(step: TutorialStep, ctx: ValidateContext): CoachMes
   const made = wantedPaths(step)[0];
   if (made) {
     const node = ctx.vfs.findByPath(made);
-    const kind = node?.type === 'file' ? 'file' : 'directory';
+    const kind = node?.type === 'file' ? L('file', 'ملف') : L('directory', 'مجلد');
     return {
       tone: 'ok',
-      title: `${baseName(made)} ${node ? 'created' : 'complete'}`,
-      body: node ? `You now have a ${kind} at ${made}.` : 'That matches the objective.',
+      title: L(
+        `${baseName(made)} ${node ? 'created' : 'complete'}`,
+        `${baseName(made)} ${node ? 'أُنشئ' : 'اكتمل'}`,
+      ),
+      body: node
+        ? L(`You now have a ${kind} at ${made}.`, `صار لديك ${kind} عند ${made}.`)
+        : L('That matches the objective.', 'هذا يطابق الهدف.'),
     };
   }
   if (ctx.lastCommand?.name === 'echo') {
     return {
       tone: 'ok',
-      title: 'Command completed',
-      body: 'The terminal printed your text. That is all echo does.',
+      title: L('Command completed', 'اكتمل الأمر'),
+      body: L('The terminal printed your text. That is all echo does.', 'الطرفية طبعت نصك. هذا كل ما يفعله echo.'),
     };
   }
   if (ctx.lastCommand?.listed) {
     return {
       tone: 'ok',
-      title: 'Listing complete',
-      body: 'Those names are the files and folders in your current directory.',
+      title: L('Listing complete', 'اكتمل العرض'),
+      body: L(
+        'Those names are the files and folders in your current directory.',
+        'هذه الأسماء هي الملفات والمجلدات في مجلدك الحالي.',
+      ),
     };
   }
-  return { tone: 'ok', title: 'Correct', body: step.successBody ?? 'That matches the objective.' };
+  return { tone: 'ok', title: L('Correct', 'صحيح'), body: step.successBody ?? L('That matches the objective.', 'هذا يطابق الهدف.') };
 }
 
 function explainGeneric(output: string, expect: string | null): string {
   if (/not recognized/i.test(output) && expect) {
-    return `The terminal did not recognize that command. This step uses ${expect}.`;
+    return L(
+      `The terminal did not recognize that command. This step uses ${expect}.`,
+      `الطرفية لم تتعرف على ذلك الأمر. هذه الخطوة تستخدم ${expect}.`,
+    );
   }
   if (/cannot find the path/i.test(output)) {
-    return 'That path is not there from where you are. Check the prompt — the text before > is your current directory.';
+    return L(
+      'That path is not there from where you are. Check the prompt — the text before > is your current directory.',
+      'ذلك المسار غير موجود من موقعك الحالي. انظر إلى الموجّه — النص قبل > هو مجلدك الحالي.',
+    );
   }
   if (/already exists/i.test(output)) {
-    return 'That name is already taken in this folder. If it is the one the lesson wants, you are done.';
+    return L(
+      'That name is already taken in this folder. If it is the one the lesson wants, you are done.',
+      'هذا الاسم مستخدم في هذا المجلد. إن كان هو ما يريده الدرس، فقد انتهيت.',
+    );
   }
   if (/syntax of the command is incorrect/i.test(output)) {
     return expect
-      ? `${expect} is missing something after the command name.`
-      : 'The command is missing an argument.';
+      ? L(`${expect} is missing something after the command name.`, `${expect} ينقصه شيء بعد اسم الأمر.`)
+      : L('The command is missing an argument.', 'الأمر ينقصه وسيط.');
   }
   return output.split('\n')[0];
 }

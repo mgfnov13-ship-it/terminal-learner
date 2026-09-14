@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /auth/
+
+# Add "Sitemap: https://<your-production-domain>/sitemap.xml" here once deployed —
+# the directive needs an absolute URL, which isn't known until then.

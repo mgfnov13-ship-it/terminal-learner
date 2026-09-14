@@ -56,19 +56,19 @@ export const FILES_TRACK: TrackDef = {
       id: 'files-u5',
       name: 'Working Efficiently',
       summary: 'History, tab completion, and the habits that make you fast.',
-      lessonIds: [],
+      lessonIds: ['files-12', 'files-13'],
     },
     {
       id: 'files-u6',
       name: 'Search & Inspect',
       summary: 'Find files and read what is inside them from the terminal.',
-      lessonIds: [],
+      lessonIds: ['files-14', 'files-15', 'files-16'],
     },
     {
       id: 'files-u7',
       name: 'Real Terminal Tasks',
       summary: 'Longer jobs modelled on work people actually do.',
-      lessonIds: [],
+      lessonIds: ['files-17', 'files-18'],
     },
     {
       id: 'files-u8',

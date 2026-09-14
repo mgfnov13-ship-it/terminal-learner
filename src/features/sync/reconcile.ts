@@ -15,6 +15,15 @@ export interface CloudProgressSnapshot {
   xpTotal: number;
   currentLessonId: string | null;
   onboardingComplete: boolean;
+  /** null when the account has no stored settings yet — the caller then seeds the cloud from local. */
+  settings: {
+    theme: 'dark' | 'light' | 'system';
+    reducedMotion: boolean;
+    lessonHints: boolean;
+    language?: 'ar' | 'en';
+    textScale?: 'standard' | 'large' | 'larger';
+    highContrast?: boolean;
+  } | null;
 }
 
 export interface ReconciledAccountProgress {

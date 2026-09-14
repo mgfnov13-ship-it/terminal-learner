@@ -10,13 +10,14 @@ import type { ProgressDiff, ProgressRepository } from './progressRepository';
  */
 export const supabaseProgressRepository: ProgressRepository = {
   async loadCloudProgress(userId: string): Promise<CloudProgressSnapshot | null> {
-    const [steps, lessons, missions, achievements, xpEvents, currentLesson] = await Promise.all([
+    const [steps, lessons, missions, achievements, xpEvents, currentLesson, settingsRow] = await Promise.all([
       supabase.from('user_step_completion').select('step_id').eq('user_id', userId),
       supabase.from('user_lesson_completion').select('lesson_id').eq('user_id', userId),
       supabase.from('user_mission_completion').select('mission_id').eq('user_id', userId),
       supabase.from('user_achievement').select('achievement_id').eq('user_id', userId),
       supabase.from('user_xp_events').select('event_key, amount').eq('user_id', userId),
       supabase.from('user_current_lesson').select('lesson_id').eq('user_id', userId).maybeSingle(),
+      supabase.from('user_settings').select('theme, reduced_motion, lesson_hints, language, text_scale, high_contrast').eq('user_id', userId).maybeSingle(),
     ]);
 
     const anyProgress =
@@ -35,6 +36,16 @@ export const supabaseProgressRepository: ProgressRepository = {
       xpTotal: (xpEvents.data ?? []).reduce((sum, r) => sum + r.amount, 0),
       currentLessonId: currentLesson.data?.lesson_id ?? null,
       onboardingComplete: false, // canonical value lives on `profiles`, read separately by AuthProvider
+      settings: settingsRow.data
+        ? {
+            theme: settingsRow.data.theme as 'dark' | 'light' | 'system',
+            reducedMotion: settingsRow.data.reduced_motion,
+            lessonHints: settingsRow.data.lesson_hints,
+            language: (settingsRow.data.language as 'ar' | 'en' | undefined) ?? undefined,
+            textScale: (settingsRow.data.text_scale as 'standard' | 'large' | 'larger' | undefined) ?? undefined,
+            highContrast: settingsRow.data.high_contrast ?? undefined,
+          }
+        : null,
     };
   },
 
@@ -109,6 +120,9 @@ export const supabaseProgressRepository: ProgressRepository = {
               theme: diff.settings.theme,
               reduced_motion: diff.settings.reducedMotion,
               lesson_hints: diff.settings.lessonHints,
+              language: diff.settings.language ?? 'en',
+              text_scale: diff.settings.textScale ?? 'standard',
+              high_contrast: diff.settings.highContrast ?? false,
               updated_at: new Date().toISOString(),
             },
             { onConflict: 'user_id' },

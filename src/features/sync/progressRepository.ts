@@ -7,7 +7,14 @@ export interface ProgressDiff {
   newAchievementIds: string[];
   newXpEvents: { key: string; amount: number }[];
   currentLessonId: string | null;
-  settings: { theme: string; reducedMotion: boolean; lessonHints: boolean } | null;
+  settings: {
+    theme: string;
+    reducedMotion: boolean;
+    lessonHints: boolean;
+    language?: string;
+    textScale?: string;
+    highContrast?: boolean;
+  } | null;
 }
 
 export interface ProgressRepository {

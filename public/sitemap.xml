@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Replace https://your-production-domain.example with the real deployed domain before this
+  is useful to a crawler — sitemap URLs must be absolute. Lists public marketing routes only;
+  /app/* and /auth/* are excluded (see robots.txt) since they're either gated or transient.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://your-production-domain.example/</loc></url>
+  <url><loc>https://your-production-domain.example/tracks</loc></url>
+  <url><loc>https://your-production-domain.example/tracks/files</loc></url>
+  <url><loc>https://your-production-domain.example/how-it-works</loc></url>
+  <url><loc>https://your-production-domain.example/demo</loc></url>
+  <url><loc>https://your-production-domain.example/about</loc></url>
+  <url><loc>https://your-production-domain.example/help</loc></url>
+  <url><loc>https://your-production-domain.example/contact</loc></url>
+  <url><loc>https://your-production-domain.example/privacy</loc></url>
+  <url><loc>https://your-production-domain.example/terms</loc></url>
+</urlset>

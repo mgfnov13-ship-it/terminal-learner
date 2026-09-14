@@ -1,20 +1,18 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { AccessibilityPanel, LanguageToggle } from '../A11y/AccessibilityPanel';
 import { useAuth } from '../../features/auth/useAuth';
-
-/**
- * N8 Terminal command nav — prompt glyph, wordmark as a path, destinations as
- * lowercase segments, cursor at the end. Public product-site nav: no app-only
- * concepts (missions, achievements, settings) live here.
- */
-const LINKS = [
-  { to: '/tracks', label: 'tracks' },
-  { to: '/how-it-works', label: 'how it works' },
-  { to: '/about', label: 'about' },
-];
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 
 export function SiteNav() {
   const navigate = useNavigate();
   const { user, isConfigured } = useAuth();
+  const { t } = usePreferences();
+
+  const links = [
+    { to: '/tracks', label: t('tracks') },
+    { to: '/how-it-works', label: t('howItWorks') },
+    { to: '/about', label: t('about') },
+  ];
 
   return (
     <header className="site-nav">
@@ -25,8 +23,8 @@ export function SiteNav() {
           </span>
           terminal-space
         </NavLink>
-        <nav className="site-nav-links" aria-label="Main">
-          {LINKS.map(({ to, label }) => (
+        <nav className="site-nav-links" aria-label={t('mainNav')}>
+          {links.map(({ to, label }) => (
             <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'is-on' : undefined)}>
               {label}
             </NavLink>
@@ -34,21 +32,25 @@ export function SiteNav() {
         </nav>
         <span className="site-nav-caret" aria-hidden />
         <div className="site-nav-cta">
+          <div className="chrome-utilities" role="group" aria-label={t('langAndA11y')}>
+            <LanguageToggle />
+            <AccessibilityPanel iconOnly />
+          </div>
           {user ? (
             <button type="button" className="btn-chip" onClick={() => navigate('/app')}>
-              Dashboard
+              {t('dashboard')}
             </button>
           ) : (
             <>
               <NavLink to="/auth/sign-in" className="site-nav-signin">
-                sign in
+                {t('signIn')}
               </NavLink>
               <button
                 type="button"
                 className="btn-chip"
                 onClick={() => navigate(isConfigured ? '/auth/sign-up' : '/app')}
               >
-                Start learning
+                {t('startLearning')}
               </button>
             </>
           )}

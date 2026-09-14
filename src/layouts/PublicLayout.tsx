@@ -1,25 +1,33 @@
 import { Outlet } from 'react-router-dom';
-import { useAppChrome } from '../hooks/useAppChrome';
+import { AccessibilityPanel, LanguageToggle } from '../components/A11y/AccessibilityPanel';
 import { ConfirmDialog, ToastStack } from '../components/UI/Chrome';
 import { SiteFooter } from '../components/Nav/SiteFooter';
 import { SiteNav } from '../components/Nav/SiteNav';
+import { usePreferences } from '../features/preferences/PreferencesProvider';
 
-/** Public marketing/product website shell: homepage, tracks, about, auth, legal. */
 export function PublicLayout() {
-  useAppChrome();
+  const { t } = usePreferences();
   return (
     <div className="site-shell">
       <a className="skip-link" href="#main">
-        Skip to content
+        {t('skip')}
       </a>
       <SiteNav />
-      <main className="site-main" id="main">
+      <main className="site-main" id="main" tabIndex={-1}>
         <Outlet />
       </main>
       <SiteFooter />
-      {/* Reset confirmations and XP toasts have to exist outside the lab too. */}
       <ToastStack />
       <ConfirmDialog />
+    </div>
+  );
+}
+
+export function PublicUtilities() {
+  return (
+    <div className="chrome-utilities" role="group">
+      <LanguageToggle />
+      <AccessibilityPanel iconOnly />
     </div>
   );
 }

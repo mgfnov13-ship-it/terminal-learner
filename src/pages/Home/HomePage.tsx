@@ -1,42 +1,19 @@
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { DirArrow } from '../../components/UI/Primitives';
 import { FILES_TRACK, PLANNED_TRACKS, lessonNumber, trackLessons, unitNumber } from '../../data/tracks';
+import { HOME_COPY, lessonsUnitsBuilt } from '../../data/pageCopy';
 import { activeLesson, currentUnit, filesLessonProgress } from '../../engine/tutorial';
 import { useAuth } from '../../features/auth/useAuth';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { useOS } from '../../hooks/useOS';
-
-const STAGES = [
-  {
-    step: '1.0',
-    title: 'Learn',
-    body: 'The Guide explains one idea at a time — what a command is for, and what each part of it means.',
-  },
-  {
-    step: '2.0',
-    title: 'Try',
-    body: 'You type the command into a real simulated terminal. Nothing is pre-filled and nothing runs itself.',
-  },
-  {
-    step: '3.0',
-    title: 'Feedback',
-    body: 'The lab reads the filesystem afterwards. Any command that produces the right result is accepted; typos get explained.',
-  },
-  {
-    step: '4.0',
-    title: 'Master',
-    body: 'Hints disappear as you go, then missions drop you into a messy scenario with no step-by-step guidance.',
-  },
-];
-
-const REASONS = [
-  ['An interactive terminal', 'You type every command yourself. Reading is not practising.'],
-  ['A real virtual filesystem', 'Folders and files persist between commands, so mistakes have consequences you can see.'],
-  ['Result-based checking', 'mkdir Projects and mkdir C:\\Users\\Student\\Projects both pass. There is no magic phrase to guess.'],
-  ['Progressive hints', 'Ask for a nudge, or reveal the answer. You still have to run it.'],
-  ['Practical missions', 'Sort a messy desktop, recover a lost file, scaffold a project.'],
-  ['A safe sandbox', 'Nothing reaches your own machine. Delete anything you like.'],
-];
+import { lessonTitle, trackName, trackTagline, unitName } from '../../lib/localizeContent';
 
 export function HomePage() {
+  const { t, bi, language } = usePreferences();
+  useEffect(() => {
+    document.title = `${t('appName')} — ${bi(HOME_COPY.titleSuffix)}`;
+  }, [bi, t]);
   const navigate = useNavigate();
   const { user, isConfigured } = useAuth();
   const { progress } = useOS();
@@ -59,30 +36,27 @@ export function HomePage() {
     <>
       <section className="hero">
         <div className="hero-copy">
-          <p className="kicker">Terminal Space</p>
+          <p className="kicker">{t('appName')}</p>
           <h1>
-            Learn the terminal by
+            {bi(HOME_COPY.heroLine1)}
             <br />
-            actually using one.
+            {bi(HOME_COPY.heroLine2)}
           </h1>
-          <p className="lede">
-            Master files, navigation, and the everyday commands inside a safe simulated computer. You get a lesson on
-            one side, a working command prompt on the other, and honest feedback on whatever you type.
-          </p>
+          <p className="lede">{bi(HOME_COPY.lede)}</p>
           <div className="cta-row">
             <button type="button" className="btn-primary" onClick={goPrimary}>
-              {user ? 'Continue learning' : 'Start learning'}
+              {user ? t('continueLesson') : t('startLearning')}
             </button>
             <Link className="btn-secondary" to="/tracks/files">
-              See the Files track
+              {bi(HOME_COPY.seeFiles)}
             </Link>
           </div>
-          <p className="hero-note">Runs in your browser · Safe simulated filesystem · Progress saved to your account</p>
+          <p className="hero-note">{bi(HOME_COPY.heroNote)}</p>
         </div>
 
         <div className="hero-proof">
-          <div className="transcript" aria-label="Example terminal session">
-            <p className="transcript-label">Terminal · simulated</p>
+          <div className="transcript" dir="ltr" lang="en" aria-label={bi(HOME_COPY.transcriptAria)}>
+            <p className="transcript-label">{bi(HOME_COPY.transcriptLabel)}</p>
             <pre>
               <code>{`C:\\Users\\Student> mkdir Projects
 
@@ -96,27 +70,27 @@ C:\\Users\\Student\\Projects> `}</code>
             </pre>
           </div>
           <aside className="proof-card">
-            <p className="brief-label">Guide · step 3 of 5</p>
-            <h2>Create directories</h2>
+            <p className="brief-label">{bi(HOME_COPY.briefLabel)}</p>
+            <h2>{bi(HOME_COPY.proofTitle)}</h2>
             <p>
-              <strong>Your turn.</strong> Create a directory named Projects.
+              <strong>{t('yourTurn')}</strong> {bi(HOME_COPY.proofBody)}
             </p>
-            <p className="proof-card-note">The Guide teaches you. Terminal lets you try it.</p>
+            <p className="proof-card-note">{bi(HOME_COPY.proofNote)}</p>
           </aside>
         </div>
       </section>
 
       <section className="numbered">
-        <p className="section-index">01 — How it works</p>
+        <p className="section-index">{bi(HOME_COPY.howIndex)}</p>
         <div className="numbered-body">
-          <h2>Four things happen in every lesson.</h2>
+          <h2>{bi(HOME_COPY.howTitle)}</h2>
           <ol className="stages">
-            {STAGES.map((s) => (
+            {HOME_COPY.stages.map((s) => (
               <li key={s.step}>
                 <span className="stage-num">{s.step}</span>
                 <div>
-                  <h3>{s.title}</h3>
-                  <p>{s.body}</p>
+                  <h3>{bi(s.title)}</h3>
+                  <p>{bi(s.body)}</p>
                 </div>
               </li>
             ))}
@@ -125,54 +99,54 @@ C:\\Users\\Student\\Projects> `}</code>
       </section>
 
       <section className="numbered">
-        <p className="section-index">02 — Tracks</p>
+        <p className="section-index">{bi(HOME_COPY.tracksIndex)}</p>
         <div className="numbered-body">
-          <h2>One track is built. The rest are honest plans.</h2>
+          <h2>{bi(HOME_COPY.tracksTitle)}</h2>
           <table className="spec">
             <thead>
               <tr>
-                <th scope="col">Track</th>
-                <th scope="col">Covers</th>
-                <th scope="col">Status</th>
+                <th scope="col">{t('track')}</th>
+                <th scope="col">{t('covers')}</th>
+                <th scope="col">{t('status')}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <th scope="row">
-                  <Link to="/tracks/files">{FILES_TRACK.name}</Link>
+                  <Link to="/tracks/files">{trackName(FILES_TRACK.id, language)}</Link>
                 </th>
-                <td>{FILES_TRACK.tagline}</td>
+                <td>{trackTagline(FILES_TRACK.id, language)}</td>
                 <td>
-                  <span className="status is-open">Available</span>
+                  <span className="status is-open">{t('available')}</span>
                   <span className="status-detail">
-                    {lessons.length} lessons · {builtUnits} of {FILES_TRACK.units.length} units built
+                    {bi(lessonsUnitsBuilt(lessons.length, builtUnits, FILES_TRACK.units.length))}
                   </span>
                 </td>
               </tr>
-              {PLANNED_TRACKS.map((t) => (
-                <tr key={t.id} className="is-planned">
-                  <th scope="row">{t.name}</th>
-                  <td>{t.tagline}</td>
+              {PLANNED_TRACKS.map((track) => (
+                <tr key={track.id} className="is-planned">
+                  <th scope="row">{trackName(track.id, language)}</th>
+                  <td>{trackTagline(track.id, language)}</td>
                   <td>
-                    <span className="status">Planned</span>
+                    <span className="status">{t('planned')}</span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p className="table-note">Planned tracks are not clickable, because there is nothing behind them yet.</p>
+          <p className="table-note">{bi(HOME_COPY.plannedNote)}</p>
         </div>
       </section>
 
       <section className="numbered">
-        <p className="section-index">03 — Why this and not a video</p>
+        <p className="section-index">{bi(HOME_COPY.whyIndex)}</p>
         <div className="numbered-body">
-          <h2>You don't just read commands. You use them.</h2>
+          <h2>{bi(HOME_COPY.whyTitle)}</h2>
           <dl className="reasons">
-            {REASONS.map(([term, detail]) => (
-              <div key={term}>
-                <dt>{term}</dt>
-                <dd>{detail}</dd>
+            {HOME_COPY.reasons.map(([term, detail]) => (
+              <div key={term.en}>
+                <dt>{bi(term)}</dt>
+                <dd>{bi(detail)}</dd>
               </div>
             ))}
           </dl>
@@ -182,26 +156,27 @@ C:\\Users\\Student\\Projects> `}</code>
       <section className="closing">
         {user && started ? (
           <>
-            <p className="kicker">Continue learning</p>
+            <p className="kicker">{t('continueLesson')}</p>
             <h2>
-              Unit {unitNumber(unit?.id ?? '')} · {unit?.name}
+              {t('unit')} {unitNumber(unit?.id ?? '')} · {unitName(unit?.id ?? '', language, unit?.name ?? '')}
             </h2>
             <p className="closing-line">
-              Lesson {lessonNumber(lesson.id)} · {lesson.title} — {files.done} of {files.total} lessons complete.
+              {t('lesson')} {lessonNumber(lesson.id)} · {lessonTitle(lesson.id, language)} — {files.done} {t('of')}{' '}
+              {files.total} {t('lessonsWord')} {t('complete')}.
             </p>
             <Link className="btn-chip" to={`/app/lab/files/${lesson.id}`}>
-              Continue <span aria-hidden>→</span>
+              {t('continue')} <DirArrow />
             </Link>
           </>
         ) : (
           <>
-            <p className="kicker">Ready when you are</p>
-            <h2>Start with unit 1 · {FILES_TRACK.units[0].name}</h2>
-            <p className="closing-line">
-              First lesson: the prompt, the cursor, and your first command. It takes a couple of minutes.
-            </p>
+            <p className="kicker">{bi(HOME_COPY.ready)}</p>
+            <h2>
+              {bi(HOME_COPY.startUnit1)} · {unitName(FILES_TRACK.units[0].id, language, FILES_TRACK.units[0].name)}
+            </h2>
+            <p className="closing-line">{bi(HOME_COPY.firstLessonNote)}</p>
             <Link className="btn-chip" to="/tracks/files">
-              See the Files track <span aria-hidden>→</span>
+              {bi(HOME_COPY.seeFiles)} <DirArrow />
             </Link>
           </>
         )}

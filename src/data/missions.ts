@@ -173,6 +173,72 @@ export const MISSIONS: MissionDef[] = [
     ],
     check: ({ vfs }) => isFile(vfs, `${PROJ}\\Backup\\keep.txt`) && !isFolder(vfs, `${PROJ}\\old`),
   },
+  {
+    id: 'm-inbox-sort',
+    order: 7,
+    title: 'Downloads Triage',
+    difficulty: 'Intermediate',
+    scenario: 'Downloads is a pile again: a PDF, a photo, and a text dump.',
+    briefing:
+      'Downloads has invoice.pdf, holiday.jpg, and dump.txt sitting loose. Make Docs, Photos, and Text folders and file each item. dir on Downloads should then show only folders.',
+    objective: 'Downloads\\Docs\\invoice.pdf, Downloads\\Photos\\holiday.jpg, and Downloads\\Text\\dump.txt exist.',
+    hint: 'mkdir three folders, then move each file. type dump.txt first if you want to be sure it is text.',
+    skills: ['mkdir', 'move', 'dir'],
+    requiresLessonIds: ['files-17'],
+    xp: 130,
+    startCwd: DOWN,
+    setup: [
+      { type: 'ensureFile', path: `${DOWN}\\invoice.pdf`, content: 'pdf' },
+      { type: 'ensureFile', path: `${DOWN}\\holiday.jpg`, content: 'jpg' },
+      { type: 'ensureFile', path: `${DOWN}\\dump.txt`, content: 'plain text' },
+      { type: 'cwd', path: DOWN },
+    ],
+    check: ({ vfs }) =>
+      isFile(vfs, `${DOWN}\\Docs\\invoice.pdf`) &&
+      isFile(vfs, `${DOWN}\\Photos\\holiday.jpg`) &&
+      isFile(vfs, `${DOWN}\\Text\\dump.txt`),
+  },
+  {
+    id: 'm-read-then-file',
+    order: 8,
+    title: 'Read Then File',
+    difficulty: 'Intermediate',
+    scenario: 'A note on the Desktop says where it belongs. Read it, then put it there.',
+    briefing:
+      'Desktop\\where.txt tells you to store it in Documents\\Filed. Read the file, make Filed if needed, and move the note there.',
+    objective: 'Documents\\Filed\\where.txt exists and Desktop\\where.txt does not.',
+    hint: 'type Desktop\\where.txt. mkdir Documents\\Filed if it is missing. move the file.',
+    skills: ['type', 'mkdir', 'move'],
+    requiresLessonIds: ['files-15', 'files-18'],
+    xp: 140,
+    startCwd: HOME,
+    setup: [
+      { type: 'ensureFile', path: `${DESKTOP}\\where.txt`, content: 'File me in Documents\\Filed.' },
+      { type: 'ensureFolder', path: DOCS },
+      { type: 'cwd', path: HOME },
+    ],
+    check: ({ vfs }) => isFile(vfs, `${DOCS}\\Filed\\where.txt`) && !isFile(vfs, `${DESKTOP}\\where.txt`),
+  },
+  {
+    id: 'm-workspace-label',
+    order: 9,
+    title: 'Label the Workspace',
+    difficulty: 'Advanced',
+    scenario: 'A project folder exists. You need a README inside it that you can prove you wrote.',
+    briefing:
+      'Projects\\Lab already exists. Create readme.txt inside it with any text (echo or a touch plus later edits are fine in this lab — touch an empty file is enough), then prove you can print it with type.',
+    objective: 'Projects\\Lab\\readme.txt exists.',
+    hint: 'cd into Projects\\Lab or use a full path. touch readme.txt. type readme.txt to inspect it.',
+    skills: ['cd', 'touch', 'type', 'pwd'],
+    requiresLessonIds: ['files-14', 'files-15', 'files-6'],
+    xp: 120,
+    startCwd: HOME,
+    setup: [
+      { type: 'ensureFolder', path: `${PROJ}\\Lab` },
+      { type: 'cwd', path: HOME },
+    ],
+    check: ({ vfs }) => isFile(vfs, `${PROJ}\\Lab\\readme.txt`),
+  },
 ];
 
 export function missionById(id: string | undefined): MissionDef | undefined {

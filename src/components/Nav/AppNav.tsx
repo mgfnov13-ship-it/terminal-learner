@@ -1,37 +1,70 @@
 import { NavLink } from 'react-router-dom';
+import { AccessibilityPanel } from '../A11y/AccessibilityPanel';
+import { useAuth } from '../../features/auth/useAuth';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
+import { useSyncStatus } from '../../features/sync/syncStatusStore';
 
-const LINKS = [
-  { to: '/app', label: 'Dashboard', end: true },
-  { to: '/app/learn', label: 'Learn' },
-  { to: '/app/missions', label: 'Missions' },
-  { to: '/app/progress', label: 'Progress' },
-  { to: '/app/achievements', label: 'Achievements' },
-];
+function initials(name: string | null | undefined, email: string | null | undefined): string {
+  const source = (name ?? email ?? 'TS').trim();
+  const parts = source.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0, 2).toUpperCase();
+}
 
-/** Workspace nav for the authenticated app shell — distinct from the public site's terminal-command nav. */
 export function AppNav() {
+  const { t } = usePreferences();
+  const { isConfigured, user, profile } = useAuth();
+  const syncStatus = useSyncStatus();
+  const showLocalModeLabel = import.meta.env.DEV && !isConfigured;
+  const showSyncStatus = isConfigured && Boolean(user) && syncStatus !== 'idle';
+  const links = [
+    { to: '/app', label: t('dashboard'), end: true },
+    { to: '/app/learn', label: t('learn') },
+    { to: '/app/missions', label: t('missions') },
+    { to: '/app/progress', label: t('progress') },
+    { to: '/app/achievements', label: t('achievements') },
+  ];
+
   return (
     <header className="app-nav">
       <div className="app-nav-inner">
-        <NavLink to="/app" className="app-mark" aria-label="Terminal Space dashboard">
+        <NavLink to="/app" className="app-mark" aria-label={t('dashboard')}>
           <span className="app-mark-ico" aria-hidden>
             &gt;_
           </span>
-          Terminal Space
+          {t('appName')}
         </NavLink>
-        <nav className="app-nav-links" aria-label="App">
-          {LINKS.map(({ to, label, end }) => (
+        <nav className="app-nav-links" aria-label={t('appName')}>
+          {links.map(({ to, label, end }) => (
             <NavLink key={to} to={to} end={end} className={({ isActive }) => (isActive ? 'is-on' : undefined)}>
               {label}
             </NavLink>
           ))}
         </nav>
         <div className="app-nav-side">
-          <NavLink to="/app/help" className="app-nav-icon" aria-label="Help">
-            Help
+          {showLocalModeLabel && <span className="app-nav-badge">{t('localMode')}</span>}
+          {showSyncStatus && (
+            <span
+              className={`app-nav-sync${syncStatus === 'retrying' ? ' is-warn' : ''}`}
+              role="status"
+              aria-live="polite"
+            >
+              {syncStatus === 'hydrating' ? t('syncSaving') : syncStatus === 'retrying' ? t('syncRetry') : t('syncSaved')}
+            </span>
+          )}
+          <AccessibilityPanel iconOnly />
+          <NavLink to="/app/help" className="app-nav-icon">
+            {t('help')}
           </NavLink>
-          <NavLink to="/app/profile" className="app-nav-avatar" aria-label="Profile">
-            ST
+          <NavLink to="/app/settings" className="app-nav-icon">
+            {t('settings')}
+          </NavLink>
+          <NavLink
+            to="/app/profile"
+            className="app-nav-avatar"
+            aria-label={t('profile')}
+          >
+            {initials(profile?.display_name, user?.email)}
           </NavLink>
         </div>
       </div>

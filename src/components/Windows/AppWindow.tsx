@@ -1,7 +1,19 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Minus, Square, X, Copy } from 'lucide-react';
-import type { WindowRecord } from '../../types';
+import type { AppId, WindowRecord } from '../../types';
 import { useOSApi } from '../../hooks/useOS';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
+import type { MessageKey } from '../../lib/i18n';
+
+const TITLE_KEY: Record<AppId, MessageKey> = {
+  terminal: 'terminal',
+  explorer: 'fileExplorer',
+  thispc: 'thisPc',
+  recycle: 'recycleBin',
+  academy: 'guide',
+  settings: 'settings',
+  help: 'help',
+};
 
 const ICONS: Record<string, ReactNode> = {};
 
@@ -15,6 +27,8 @@ interface Props {
 
 export function AppWindow({ win, icon, children, focused, awaiting }: Props) {
   const api = useOSApi();
+  const { t } = usePreferences();
+  const title = t(TITLE_KEY[win.appId] ?? 'terminal');
   const drag = useRef<{ ox: number; oy: number; sx: number; sy: number } | null>(null);
   const resize = useRef<{ ox: number; oy: number; sw: number; sh: number } | null>(null);
 
@@ -52,7 +66,7 @@ export function AppWindow({ win, icon, children, focused, awaiting }: Props) {
       className={`app-window${focused ? ' is-focused' : ''}${win.minimized ? ' is-min' : ''}${win.maximized ? ' is-max' : ''}${awaiting ? ' is-awaiting' : ''}`}
       style={style}
       onPointerDown={() => api.focus(win.id)}
-      aria-label={win.title}
+      aria-label={title}
     >
       <header
         className="titlebar"
@@ -64,15 +78,15 @@ export function AppWindow({ win, icon, children, focused, awaiting }: Props) {
         onDoubleClick={() => api.toggleMax(win.id)}
       >
         <span className="titlebar-icon">{icon}</span>
-        <span className="titlebar-name">{win.title}</span>
+        <span className="titlebar-name">{title}</span>
         <div className="titlebar-actions">
-          <button type="button" aria-label="Minimize" onClick={() => api.toggleMin(win.id)}>
+          <button type="button" aria-label={t('minimize')} onClick={() => api.toggleMin(win.id)}>
             <Minus size={14} strokeWidth={1.5} />
           </button>
-          <button type="button" aria-label={win.maximized ? 'Restore' : 'Maximize'} onClick={() => api.toggleMax(win.id)}>
+          <button type="button" aria-label={win.maximized ? t('restoreWindow') : t('maximize')} onClick={() => api.toggleMax(win.id)}>
             {win.maximized ? <Copy size={12} strokeWidth={1.5} /> : <Square size={12} strokeWidth={1.5} />}
           </button>
-          <button type="button" className="is-close" aria-label="Close" onClick={() => api.closeWindow(win.id)}>
+          <button type="button" className="is-close" aria-label={t('close')} onClick={() => api.closeWindow(win.id)}>
             <X size={14} strokeWidth={1.5} />
           </button>
         </div>
@@ -81,6 +95,7 @@ export function AppWindow({ win, icon, children, focused, awaiting }: Props) {
       {!win.maximized && (
         <span
           className="resize-handle"
+          aria-hidden="true"
           onPointerDown={(e) => {
             e.stopPropagation();
             resize.current = { ox: e.clientX, oy: e.clientY, sw: win.w, sh: win.h };

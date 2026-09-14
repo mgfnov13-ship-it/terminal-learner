@@ -115,3 +115,40 @@ export function newlyUnlocked(progress: UserProgress): AchievementDef[] {
 export function achievementById(id: string): AchievementDef | undefined {
   return ACHIEVEMENTS.find((a) => a.id === id);
 }
+
+export interface AchievementProgress {
+  current: number;
+  target: number;
+}
+
+/**
+ * Numeric progress toward an achievement, derived from real progress data — never fabricated.
+ * Only returns a value for achievements where a natural running count exists; binary
+ * achievements (run a command, create a folder, finish unaided...) return null and the UI shows
+ * no progress bar for them, per spec: don't fabricate progress where it doesn't make sense.
+ */
+export function achievementProgress(achievement: AchievementDef, progress: UserProgress): AchievementProgress | null {
+  switch (achievement.id) {
+    case 'twenty-commands':
+      return { current: Math.min(progress.commandCount, 20), target: 20 };
+    case 'five-lessons':
+      return { current: Math.min(progress.completedLessonIds.length, 5), target: 5 };
+    case 'mission-veteran':
+      return { current: Math.min(progress.completedMissionIds.length, 3), target: 3 };
+    case 'mission-complete':
+      return { current: progress.completedMissionIds.length, target: MISSIONS.length };
+    case 'navigator': {
+      const ids = FILES_TRACK.units.find((u) => u.id === 'files-u2')?.lessonIds ?? [];
+      return { current: ids.filter((id) => progress.completedLessonIds.includes(id)).length, target: ids.length };
+    }
+    case 'apprentice': {
+      const lessons = trackLessons(FILES_TRACK);
+      return {
+        current: lessons.filter((l) => progress.completedLessonIds.includes(l.id)).length,
+        target: lessons.length,
+      };
+    }
+    default:
+      return null;
+  }
+}

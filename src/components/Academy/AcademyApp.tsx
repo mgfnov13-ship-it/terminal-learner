@@ -25,7 +25,16 @@ import {
   stepSupportsAnswer,
 } from '../../engine/tutorial';
 import { lessonXpEarned } from '../../engine/xp';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { useOS, useOSApi } from '../../hooks/useOS';
+import {
+  lessonTitle,
+  localizeLesson,
+  missionField,
+  missionTitle,
+  trackName,
+  unitName,
+} from '../../lib/localizeContent';
 import { CommandAnatomy } from './CommandAnatomy';
 import { LabMotif } from './LabMotif';
 
@@ -34,9 +43,11 @@ export function AcademyApp() {
   const { progress, settings, cwd, coach, awaitingInput, onboardingPage, questionWrong } = snap;
   const api = useOSApi();
   const navigate = useNavigate();
+  const { t, bi, language } = usePreferences();
 
-  const lesson = activeLesson(progress);
-  const step = activeStep(progress);
+  const rawLesson = activeLesson(progress);
+  const lesson = localizeLesson(rawLesson, language);
+  const step = lesson.steps[progress.currentStepIndex] ?? activeStep(progress);
   const unit = currentUnit(progress);
   const completeView = isLessonCompleteView(progress);
   const missionMode = progress.academyTab === 'missions' && Boolean(progress.activeMissionId);
@@ -59,13 +70,19 @@ export function AcademyApp() {
         <div className="academy-hero-row">
           <div className="academy-hero-main">
             <p className="kicker">
-              {missionMode ? 'Mission' : `${FILES_TRACK.name} track · Unit ${unitNumber(unit?.id ?? '')}`}
+              {missionMode
+                ? t('mission')
+                : `${trackName(FILES_TRACK.id, language)} · ${t('unit')} ${unitNumber(unit?.id ?? '')}`}
             </p>
-            <h2>{missionMode ? (mission?.title ?? 'Mission') : lesson.title}</h2>
+            <h2>
+              {missionMode
+                ? missionTitle(mission?.id ?? '', language, mission?.title ?? t('mission'))
+                : lesson.title}
+            </h2>
             <p className="academy-sub">
               {missionMode
-                ? mission?.scenario
-                : `Lesson ${lessonNumber(lesson.id)} of ${trackLessons().length} · ${unit?.name}`}
+                ? missionField(mission?.id ?? '', 'scenario', language, mission?.scenario ?? '')
+                : `${t('lesson')} ${lessonNumber(lesson.id)} ${bi({ en: 'of', ar: 'من' })} ${trackLessons().length} · ${unitName(unit?.id ?? '', language, unit?.name ?? '')}`}
             </p>
           </div>
           <div className="academy-hero-side">
@@ -75,14 +92,16 @@ export function AcademyApp() {
               aria-pressed={settings.showHints}
               onClick={() => api.patchSettings({ showHints: !settings.showHints })}
             >
-              {settings.showHints ? 'Hide hints' : 'Show hints'} <kbd>⌘2</kbd>
+              {settings.showHints ? t('hideHints') : t('showHints')} <kbd>⌘2</kbd>
             </button>
-            <LabMotif caption="Small commands. Big progress." />
+            <LabMotif caption={bi({ en: 'Small commands. Big progress.', ar: 'أوامر صغيرة. تقدّم كبير.' })} />
           </div>
         </div>
         <div className="xp-line">
-          <span>Player level {level}</span>
-          <span>{next ? `${next - progress.xp} XP to level ${level + 1}` : `${progress.xp} XP`}</span>
+          <span>
+            {t('player')} {t('level')} {level}
+          </span>
+          <span>{next ? `${next - progress.xp} XP ${bi({ en: 'to level', ar: 'حتى المستوى' })} ${level + 1}` : `${progress.xp} XP`}</span>
         </div>
         <div
           className="xp-bar"
@@ -90,13 +109,13 @@ export function AcademyApp() {
           aria-valuenow={levelPct}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label="XP toward next player level"
+          aria-label={t('xpTowardLevel')}
         >
           <span style={{ width: `${levelPct}%` }} />
         </div>
         <p className="academy-where">
-          <span>Current directory:</span>
-          <strong>{cwd}</strong>
+          <span>{t('currentDirectory')}</span>
+          <strong dir="ltr" lang="en">{cwd}</strong>
         </p>
       </header>
 
@@ -122,44 +141,47 @@ export function AcademyApp() {
               type="button"
               className="act"
               disabled={hintsLeft <= 0 || stepDone}
-              title={hintsLeft <= 0 ? 'No hints left for this step' : undefined}
+              title={hintsLeft <= 0 ? bi({ en: 'No hints left for this step', ar: 'لا تلميحات متبقية لهذه الخطوة' }) : undefined}
               onClick={() => {
                 if (!settings.showHints) api.patchSettings({ showHints: true });
                 api.revealHint();
               }}
             >
               <Lightbulb size={14} strokeWidth={1.7} />
-              Need a hint
+              {t('needHint')}
             </button>
             <button
               type="button"
               className="act"
               disabled={!step || !stepSupportsAnswer(step) || stepDone || !answer}
-              title={step && stepSupportsAnswer(step) ? undefined : 'This step has nothing to type yet'}
+              title={step && stepSupportsAnswer(step) ? undefined : bi({ en: 'This step has nothing to type yet', ar: 'هذه الخطوة ليس فيها ما يُكتب بعد' })}
               onClick={() => (revealed ? api.hideAnswer() : api.showAnswer())}
             >
               {revealed ? <EyeOff size={14} strokeWidth={1.7} /> : <Eye size={14} strokeWidth={1.7} />}
-              {revealed ? 'Hide answer' : 'Show answer'}
+              {revealed ? t('hideAnswer') : t('showAnswer')}
             </button>
             <button type="button" className="act" onClick={() => api.retryStep()}>
               <RotateCcw size={14} strokeWidth={1.7} />
-              Retry step
+              {t('retryStep')}
             </button>
             <button
               type="button"
               className="act"
               onClick={() =>
                 api.askConfirm({
-                  title: 'Restart this lesson?',
-                  body: 'The simulated disk returns to this lesson’s starting folders and steps start again. XP you already earned stays.',
-                  confirmLabel: 'Restart lesson',
+                  title: bi({ en: 'Restart this lesson?', ar: 'إعادة هذا الدرس؟' }),
+                  body: bi({
+                    en: 'The simulated disk returns to this lesson’s starting folders and steps start again. XP you already earned stays.',
+                    ar: 'يعود القرص المحاكى إلى مجلدات بداية هذا الدرس وتبدأ الخطوات من جديد. نقاط الخبرة التي كسبتها تبقى.',
+                  }),
+                  confirmLabel: t('restartLesson'),
                   danger: true,
                   onConfirm: () => api.restartLesson(),
                 })
               }
             >
               <RefreshCw size={14} strokeWidth={1.7} />
-              Restart lesson
+              {t('restartLesson')}
             </button>
           </>
         )}
@@ -167,23 +189,23 @@ export function AcademyApp() {
           <>
             <button type="button" className="act" onClick={() => api.restartMission()}>
               <RefreshCw size={14} strokeWidth={1.7} />
-              Reset scenario
+              {t('resetScenario')}
             </button>
             <button type="button" className="act" onClick={() => navigate('/app/missions')}>
-              Leave mission
+              {t('leaveMission')}
             </button>
           </>
         )}
         {!missionMode && !completeView && (
-          <button
-            type="button"
-            className="btn-primary act-next"
-            disabled={!canContinue(progress, step, completeView, missionMode)}
-            title={canContinue(progress, step, completeView, missionMode) ? undefined : 'Finish this step first'}
-            onClick={() => api.continueTutorial()}
-          >
-            {!progress.onboardingComplete ? 'Continue' : lastStep ? 'Finish lesson' : 'Next step'}
-            <ArrowRight size={14} strokeWidth={2} />
+            <button
+              type="button"
+              className="btn-primary act-next"
+              disabled={!canContinue(progress, step, completeView, missionMode)}
+              title={canContinue(progress, step, completeView, missionMode) ? undefined : t('finishStepFirst')}
+              onClick={() => api.continueTutorial()}
+            >
+            {!progress.onboardingComplete ? t('continue') : lastStep ? t('finishLesson') : t('nextStep')}
+            <ArrowRight className="dir-arrow" size={14} strokeWidth={2} />
           </button>
         )}
       </footer>
@@ -192,7 +214,7 @@ export function AcademyApp() {
 
   function StepRail() {
     return (
-      <nav className="step-rail" aria-label="Lesson steps">
+      <nav className="step-rail" aria-label={t('lessonSteps')}>
         <ol>
           {lesson.steps.map((s, i) => {
             const done = progress.completedStepIds.includes(s.id) || i < progress.currentStepIndex;
@@ -203,12 +225,12 @@ export function AcademyApp() {
                   {done ? <Check size={12} strokeWidth={2.6} /> : i + 1}
                 </span>
                 <span className="rail-label">{s.title}</span>
-                {now && <span className="sr-only">(current step)</span>}
+                {now && <span className="sr-only">({t('currentStep')})</span>}
               </li>
             );
           })}
         </ol>
-        <p className="rail-quote">“Same tools. New possibilities.”</p>
+        <p className="rail-quote">{bi({ en: 'Same tools. New possibilities.', ar: 'الأدوات نفسها. إمكانات جديدة.' })}</p>
       </nav>
     );
   }
@@ -226,7 +248,8 @@ export function AcademyApp() {
     return (
       <article className="lesson-card">
         <p className="lesson-kicker">
-          {kindLabel(step.kind)} · Step {progress.currentStepIndex + 1} of {lesson.steps.length}
+          {kindLabel(step.kind, language)} · {bi({ en: 'Step', ar: 'خطوة' })} {progress.currentStepIndex + 1}{' '}
+          {bi({ en: 'of', ar: 'من' })} {lesson.steps.length}
         </p>
         <h3>{step.title}</h3>
 
@@ -238,7 +261,7 @@ export function AcademyApp() {
 
         {step.prompt && (
           <p className="objective">
-            <strong>{waiting ? 'Your turn.' : 'Objective.'}</strong> {step.prompt}
+            <strong>{waiting ? t('yourTurn') : `${t('objective')}.`}</strong> {step.prompt}
           </p>
         )}
 
@@ -246,12 +269,12 @@ export function AcademyApp() {
             now, so the ladder is objective → hint → answer. */}
         {step.example && !satisfied && !step.anatomy && !answer && (
           <p className="cmd-example">
-            <code>{step.example}</code>
+            <code dir="ltr" lang="en">{step.example}</code>
           </p>
         )}
 
         {step.kind === 'question' && step.question && (
-          <div className="quiz" role="group" aria-label="Knowledge check">
+          <div className="quiz" role="group" aria-label={t('knowledgeCheck')}>
             <p className="objective">{step.question.prompt}</p>
             {step.question.choices.map((c) => {
               const selectedWrong = questionWrong === c.id;
@@ -286,18 +309,20 @@ export function AcademyApp() {
               </span>
               <div>
                 <p>
-                  <strong>{coach?.title ?? step.successTitle ?? 'Correct'}</strong>
+                  <strong>{coach?.title ?? step.successTitle ?? bi({ en: 'Correct', ar: 'صحيح' })}</strong>
                 </p>
                 <p>{coach?.body ?? step.successBody}</p>
               </div>
             </div>
           )}
-          {waiting && awaitingInput && !coach && <p className="waiting-line">Waiting for you to use the Terminal…</p>}
+          {waiting && awaitingInput && !coach && (
+            <p className="waiting-line">{bi({ en: 'Waiting for you to use the Terminal…', ar: 'بانتظار أن تستخدم الطرفية…' })}</p>
+          )}
           {!satisfied && coach && coach.tone !== 'ok' && (
             <div className={`coach is-${coach.tone}`}>
               <p>
                 <strong>
-                  {coach.tone === 'try' ? '! Try again' : 'Note'} · {coach.title}
+                  {coach.tone === 'try' ? bi({ en: '! Try again', ar: '! أعد المحاولة' }) : bi({ en: 'Note', ar: 'ملاحظة' })} · {coach.title}
                 </strong>
               </p>
               <p>{coach.body}</p>
@@ -309,33 +334,44 @@ export function AcademyApp() {
           <div className="hint-stack">
             {step.hints?.slice(0, hintsShown).map((h, i) => (
               <p key={h} className="hint">
-                Hint {i + 1}. {h}
+                {bi({ en: 'Hint', ar: 'تلميح' })} {i + 1}. {h}
               </p>
             ))}
-            {hintsShown < totalHints && <p className="hint-more">More hints available below.</p>}
+            {hintsShown < totalHints && (
+              <p className="hint-more">{bi({ en: 'More hints available below.', ar: 'المزيد من التلميحات متاح أدناه.' })}</p>
+            )}
           </div>
         )}
 
         {/* Revealed by the footer's Show answer button. Never auto-runs anything. */}
         {canAsk && answer && revealed && (
           <div className="answer-card">
-            <p className="brief-label">Answer</p>
+            <p className="brief-label">{bi({ en: 'Answer', ar: 'الإجابة' })}</p>
             {answer.command && (
               <pre className="answer-command">
-                <code>{answer.command}</code>
+                <code dir="ltr" lang="en">{answer.command}</code>
               </pre>
             )}
-            {answer.label && <p className="answer-label">Correct answer: {answer.label}</p>}
+            {answer.label && (
+              <p className="answer-label">
+                {bi({ en: 'Correct answer:', ar: 'الإجابة الصحيحة:' })} {answer.label}
+              </p>
+            )}
             {answer.parts && <CommandAnatomy anatomy={{ line: answer.command ?? '', parts: answer.parts }} />}
             <p className="answer-explain">{answer.explanation}</p>
             {step.kind === 'question' ? (
-              <p className="hint">Pick that choice above to record it.</p>
+              <p className="hint">{bi({ en: 'Pick that choice above to record it.', ar: 'اختر ذلك الخيار أعلاه لتسجيله.' })}</p>
             ) : (
               <>
-                <p className="hint">Now try it in Terminal. Any command that produces the same result counts.</p>
+                <p className="hint">
+                  {bi({
+                    en: 'Now try it in Terminal. Any command that produces the same result counts.',
+                    ar: 'جرّبه الآن في الطرفية. أي أمر ينتج النتيجة نفسها يُحتسب.',
+                  })}
+                </p>
                 <div className="row-actions">
                   <button type="button" className="btn-primary" onClick={() => api.focusTerminal()}>
-                    Focus Terminal
+                    {t('focusTerminal')}
                   </button>
                 </div>
               </>
@@ -349,18 +385,23 @@ export function AcademyApp() {
   function MissionPane() {
     if (!mission) return null;
     const done = progress.completedMissionIds.includes(mission.id);
-    const missing = missingSkillsFor(mission, progress);
+    const missing = missingSkillsFor(mission, progress).map((title) => {
+      const match = trackLessons().find((l) => l.title === title);
+      return match ? lessonTitle(match.id, language) : title;
+    });
     return (
       <article className="lesson-card">
-        <p className="lesson-kicker">{mission.difficulty} mission</p>
-        <h3>{mission.title}</h3>
+        <p className="lesson-kicker">
+          {missionField(mission.id, 'difficulty', language, mission.difficulty)} {t('mission')}
+        </p>
+        <h3>{missionTitle(mission.id, language, mission.title)}</h3>
         <div className="coach-slot" role="status" aria-live="polite">
           {done && (
             <div className="coach is-ok">
               <p>
-                <strong>✓ Mission complete</strong>
+                <strong>✓ {bi({ en: 'Mission complete', ar: 'اكتملت المهمة' })}</strong>
               </p>
-              <p>The finished state matches the objective.</p>
+              <p>{bi({ en: 'The finished state matches the objective.', ar: 'الحالة النهائية تطابق الهدف.' })}</p>
             </div>
           )}
           {!done && coach && (
@@ -371,23 +412,26 @@ export function AcademyApp() {
               <p>{coach.body}</p>
             </div>
           )}
-          {!done && !coach && <p className="waiting-line">Waiting for you to use the Terminal…</p>}
+          {!done && !coach && (
+            <p className="waiting-line">{bi({ en: 'Waiting for you to use the Terminal…', ar: 'بانتظار أن تستخدم الطرفية…' })}</p>
+          )}
         </div>
-        <p>{mission.briefing}</p>
+        <p>{missionField(mission.id, 'briefing', language, mission.briefing)}</p>
         <p className="objective">
-          <strong>Objective.</strong> {mission.objective}
+          <strong>{t('objective')}.</strong> {missionField(mission.id, 'objective', language, mission.objective)}
         </p>
         {missing.length > 0 && (
           <p className="hint">
-            This mission expects skills from: {missing.join(', ')}. You can still try it.
+            {bi({ en: 'This mission expects skills from:', ar: 'هذه المهمة تتوقع مهارات من:' })} {missing.join(', ')}.
+            {bi({ en: ' You can still try it.', ar: ' يمكنك المحاولة رغم ذلك.' })}
           </p>
         )}
-        {settings.showHints && <p className="hint">{mission.hint}</p>}
+        {settings.showHints && <p className="hint">{missionField(mission.id, 'hint', language, mission.hint)}</p>}
         <p className="reward">{mission.xp} XP</p>
         {done && (
           <div className="row-actions">
             <button type="button" className="btn-primary" onClick={() => navigate('/app/missions')}>
-              Back to missions
+              {bi({ en: 'Back to missions', ar: 'العودة إلى المهام' })}
             </button>
           </div>
         )}
@@ -401,23 +445,26 @@ export function AcademyApp() {
     const commands = [...new Set(lesson.steps.map((s) => s.anatomy?.line).filter((x): x is string => Boolean(x)))];
     return (
       <article className="lesson-card is-complete">
-        <p className="brief-label">Lesson complete</p>
+        <p className="brief-label">{bi({ en: 'Lesson complete', ar: 'اكتمل الدرس' })}</p>
         <h3>{lesson.title}</h3>
         {commands.length > 0 && (
           <>
-            <p>You learned:</p>
+            <p>{bi({ en: 'You learned:', ar: 'تعلّمت:' })}</p>
             <ul className="learned-list">
               {commands.map((c) => (
                 <li key={c}>
-                  <code>{c}</code>
+                  <code dir="ltr" lang="en">{c}</code>
                 </li>
               ))}
             </ul>
           </>
         )}
-        <p className="reward">XP earned: {earned}</p>
+        <p className="reward">
+          {bi({ en: 'XP earned:', ar: 'نقاط الخبرة المكتسبة:' })} {earned}
+        </p>
         <p className="lesson-meta">
-          {filesLessonProgress(progress).done} of {filesLessonProgress(progress).total} Files lessons complete
+          {filesLessonProgress(progress).done} {bi({ en: 'of', ar: 'من' })} {filesLessonProgress(progress).total}{' '}
+          {bi({ en: 'Files lessons complete', ar: 'دروس الملفات مكتملة' })}
         </p>
         <div className="row-actions">
           {upcoming ? (
@@ -429,15 +476,15 @@ export function AcademyApp() {
                 navigate(`/app/lab/files/${upcoming.id}`);
               }}
             >
-              Continue to next lesson
+              {bi({ en: 'Continue to next lesson', ar: 'المتابعة إلى الدرس التالي' })}
             </button>
           ) : (
             <button type="button" className="btn-primary" onClick={() => navigate('/app/missions')}>
-              Try a mission
+              {bi({ en: 'Try a mission', ar: 'جرّب مهمة' })}
             </button>
           )}
           <button type="button" onClick={() => navigate('/app/learn/files')}>
-            Back to path
+            {bi({ en: 'Back to path', ar: 'العودة إلى المسار' })}
           </button>
         </div>
       </article>
@@ -446,38 +493,49 @@ export function AcademyApp() {
 }
 
 function Onboarding({ page }: { page: number }) {
+  const { bi } = usePreferences();
   if (page === 0) {
     return (
       <article className="lesson-card">
-        <p className="brief-label">Welcome</p>
-        <h3>This is the lab</h3>
+        <p className="brief-label">{bi({ en: 'Welcome', ar: 'مرحباً' })}</p>
+        <h3>{bi({ en: 'This is the lab', ar: 'هذا هو المختبر' })}</h3>
         <p>
-          The Guide is this panel: it explains one step at a time. The Terminal beside it is a real simulated command
-          prompt. Nothing you type reaches your own computer, so experiment freely.
+          {bi({
+            en: 'The Guide is this panel: it explains one step at a time. The Terminal beside it is a real simulated command prompt. Nothing you type reaches your own computer, so experiment freely.',
+            ar: 'المرشد هو هذه اللوحة: يشرح خطوة واحدة في كل مرة. الطرفية بجانبها موجّه أوامر محاكى حقيقي. لا شيء مما تكتبه يصل إلى حاسوبك، فجرّب بحرية.',
+          })}
         </p>
       </article>
     );
   }
   return (
     <article className="lesson-card">
-      <p className="brief-label">How a step works</p>
-      <h3>Read, then type</h3>
+      <p className="brief-label">{bi({ en: 'How a step works', ar: 'كيف تعمل الخطوة' })}</p>
+      <h3>{bi({ en: 'Read, then type', ar: 'اقرأ ثم اكتب' })}</h3>
       <p>
-        Each step explains a command and then asks you to run it. The lab watches the simulated filesystem, so any
-        command that produces the right result counts — there is no single exact line to guess.
+        {bi({
+          en: 'Each step explains a command and then asks you to run it. The lab watches the simulated filesystem, so any command that produces the right result counts — there is no single exact line to guess.',
+          ar: 'كل خطوة تشرح أمراً ثم تطلب منك تشغيله. المختبر يراقب نظام الملفات المحاكى، لذلك أي أمر ينتج النتيجة الصحيحة يُحتسب — لا يوجد سطر واحد للتخمين.',
+        })}
       </p>
-      <p>Stuck? Ask for a hint, or reveal the answer. You still type it yourself.</p>
+      <p>
+        {bi({
+          en: 'Stuck? Ask for a hint, or reveal the answer. You still type it yourself.',
+          ar: 'علقت؟ اطلب تلميحاً أو اكشف الإجابة. ما زلت تكتبها بنفسك.',
+        })}
+      </p>
     </article>
   );
 }
 
-function kindLabel(kind: string): string {
-  if (kind === 'try' || kind === 'check') return 'Your turn';
-  if (kind === 'mission') return 'Challenge';
-  if (kind === 'question') return 'Checkpoint';
-  if (kind === 'demo') return 'Command';
-  if (kind === 'summary') return 'Review';
-  return 'Lesson';
+function kindLabel(kind: string, language: 'ar' | 'en'): string {
+  const ar = language === 'ar';
+  if (kind === 'try' || kind === 'check') return ar ? 'دورك' : 'Your turn';
+  if (kind === 'mission') return ar ? 'تحدٍ' : 'Challenge';
+  if (kind === 'question') return ar ? 'محطة' : 'Checkpoint';
+  if (kind === 'demo') return ar ? 'أمر' : 'Command';
+  if (kind === 'summary') return ar ? 'مراجعة' : 'Review';
+  return ar ? 'درس' : 'Lesson';
 }
 
 function canContinue(

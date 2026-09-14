@@ -1,6 +1,9 @@
 import { createContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
+import type { LocalizedText } from '../../lib/i18n';
 import { isSupabaseConfigured, supabase } from '../../lib/supabase/client';
+import { authErrorCodeCopy, authErrorCopy } from './authErrors';
+import { clearGoogleOAuthPending, markGoogleOAuthPending } from './googleOAuth';
 
 export interface Profile {
   id: string;
@@ -9,39 +12,31 @@ export interface Profile {
   onboarding_complete: boolean;
 }
 
-export type AuthResult = { error: string | null };
+export type AuthResult = { error: LocalizedText | null };
 
 export interface AuthContextValue {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  profileLoading: boolean;
   isConfigured: boolean;
-  /** True while the current session is a Supabase password-recovery session, not a normal sign-in. */
   isPasswordRecovery: boolean;
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signUp: (email: string, password: string) => Promise<AuthResult>;
+  signInWithGoogle: () => Promise<AuthResult>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<AuthResult>;
   updatePassword: (password: string) => Promise<AuthResult>;
   resendVerification: (email: string) => Promise<AuthResult>;
   refreshProfile: () => Promise<void>;
+  updateProfile: (
+    patch: Partial<Pick<Profile, 'display_name' | 'avatar_url' | 'onboarding_complete'>>,
+  ) => Promise<AuthResult>;
 }
 
-const NOT_CONNECTED = "Terminal Space isn't connected to an account backend yet.";
-
-function readableAuthError(message: string | undefined): string {
-  if (!message) return 'Something went wrong. Try again.';
-  const m = message.toLowerCase();
-  if (m.includes('invalid login credentials')) return 'Incorrect email or password.';
-  if (m.includes('already registered') || m.includes('already exists')) {
-    return 'That email is already registered. Try signing in instead.';
-  }
-  if (m.includes('email not confirmed')) return 'Verify your email before signing in.';
-  if (m.includes('password') && m.includes('at least')) return message;
-  if (m.includes('rate limit')) return 'Too many attempts. Wait a moment and try again.';
-  if (m.includes('network') || m.includes('fetch')) return "We couldn't connect right now. Try again.";
-  return message;
+function fail(message?: string): AuthResult {
+  return { error: authErrorCopy(message) };
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -51,13 +46,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState<boolean>(isSupabaseConfigured);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const mounted = useRef(true);
+  const generation = useRef(0);
 
   async function loadProfile(userId: string) {
     if (!isSupabaseConfigured) return;
+    const my = ++generation.current;
+    setProfileLoading(true);
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
-    if (mounted.current && data) setProfile(data as Profile);
+    if (!mounted.current || my !== generation.current) return;
+    setProfile((data as Profile) ?? null);
+    setProfileLoading(false);
   }
 
   useEffect(() => {
@@ -73,7 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!mounted.current) return;
       setSession(data.session);
       setUser(data.session?.user ?? null);
-      if (data.session?.user) loadProfile(data.session.user.id);
+      if (data.session?.user) {
+        clearGoogleOAuthPending();
+        void loadProfile(data.session.user.id);
+      }
       setLoading(false);
     });
 
@@ -83,10 +87,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (event === 'SIGNED_OUT') {
         setIsPasswordRecovery(false);
         setProfile(null);
+        generation.current += 1;
       }
+      if (event === 'SIGNED_IN') clearGoogleOAuthPending();
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
-      if (nextSession?.user) loadProfile(nextSession.user.id);
+      if (nextSession?.user) void loadProfile(nextSession.user.id);
+      else setProfileLoading(false);
       setLoading(false);
     });
 
@@ -101,46 +108,68 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     profile,
     loading,
+    profileLoading,
     isConfigured: isSupabaseConfigured,
     isPasswordRecovery,
     async signIn(email, password) {
-      if (!isSupabaseConfigured) return { error: NOT_CONNECTED };
+      if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      return { error: error ? readableAuthError(error.message) : null };
+      return error ? fail(error.message) : { error: null };
     },
     async signUp(email, password) {
-      if (!isSupabaseConfigured) return { error: NOT_CONNECTED };
+      if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
-      return { error: error ? readableAuthError(error.message) : null };
+      return error ? fail(error.message) : { error: null };
+    },
+    async signInWithGoogle() {
+      if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
+      markGoogleOAuthPending();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) {
+        clearGoogleOAuthPending();
+        return fail(error.message);
+      }
+      return { error: null };
     },
     async signOut() {
       if (!isSupabaseConfigured) return;
       await supabase.auth.signOut();
     },
     async resetPassword(email) {
-      if (!isSupabaseConfigured) return { error: NOT_CONNECTED };
+      if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/callback`,
       });
-      return { error: error ? readableAuthError(error.message) : null };
+      return error ? fail(error.message) : { error: null };
     },
     async updatePassword(password) {
-      if (!isSupabaseConfigured) return { error: NOT_CONNECTED };
+      if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
       const { error } = await supabase.auth.updateUser({ password });
       if (!error) setIsPasswordRecovery(false);
-      return { error: error ? readableAuthError(error.message) : null };
+      return error ? fail(error.message) : { error: null };
     },
     async resendVerification(email) {
-      if (!isSupabaseConfigured) return { error: NOT_CONNECTED };
+      if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
       const { error } = await supabase.auth.resend({ type: 'signup', email });
-      return { error: error ? readableAuthError(error.message) : null };
+      return error ? fail(error.message) : { error: null };
     },
     async refreshProfile() {
       if (user) await loadProfile(user.id);
+    },
+    async updateProfile(patch) {
+      if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
+      if (!user) return { error: authErrorCodeCopy('not_signed_in') };
+      const { error } = await supabase.from('profiles').update(patch).eq('id', user.id);
+      if (error) return fail(error.message);
+      setProfile((prev) => (prev ? { ...prev, ...patch } : prev));
+      return { error: null };
     },
   };
 

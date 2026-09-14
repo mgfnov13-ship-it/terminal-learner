@@ -1,4 +1,5 @@
 import type { PersistedState, SettingsState, UserProgress } from '../types';
+import { readStored } from '../lib/storageSafe';
 import { HOME } from './paths';
 import { normalizeProgress } from './tutorial';
 import { VirtualFileSystem } from './virtualFileSystem';
@@ -17,6 +18,9 @@ export const DEFAULT_SETTINGS: SettingsState = {
   sound: false,
   showHints: true,
   reducedMotion: false,
+  language: 'en',
+  textScale: 'standard',
+  highContrast: false,
 };
 
 export const DEFAULT_PROGRESS: UserProgress = normalizeProgress({});
@@ -26,6 +30,11 @@ export function normalizeSettings(raw: Partial<SettingsState> | undefined): Sett
   const s = raw ?? {};
   const appearance = s.appearance === 'light' || s.appearance === 'system' ? s.appearance : 'dark';
   const size = Number(s.terminalFontSize);
+  const language = s.language === 'ar' || s.language === 'en' ? s.language : readStored('ts_language', 'en', ['ar', 'en']);
+  const textScale =
+    s.textScale === 'large' || s.textScale === 'larger' || s.textScale === 'standard'
+      ? s.textScale
+      : readStored('ts_text_scale', 'standard', ['standard', 'large', 'larger']);
   return {
     appearance,
     terminalFontSize: Number.isFinite(size) ? Math.min(20, Math.max(12, size)) : DEFAULT_SETTINGS.terminalFontSize,
@@ -33,6 +42,9 @@ export function normalizeSettings(raw: Partial<SettingsState> | undefined): Sett
     sound: Boolean(s.sound),
     showHints: s.showHints ?? true,
     reducedMotion: Boolean(s.reducedMotion),
+    language,
+    textScale,
+    highContrast: Boolean(s.highContrast) || readStored('ts_high_contrast', 'false', ['true', 'false']) === 'true',
   };
 }
 

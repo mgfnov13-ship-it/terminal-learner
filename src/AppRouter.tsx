@@ -1,16 +1,17 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { PublicLayout } from './layouts/PublicLayout';
 import { AppLayout } from './layouts/AppLayout';
 import { AchievementsPage } from './pages/Achievements/AchievementsPage';
 import { DashboardPage } from './pages/Dashboard/DashboardPage';
 import { HomePage } from './pages/Home/HomePage';
-import { AcademyEntry, LessonLabPage, MissionLabPage } from './pages/Lab/LabPage';
 import { TrackPage } from './pages/Learn/TrackPage';
 import { MissionsPage } from './pages/Missions/MissionsPage';
 import { MissionDetailPage } from './pages/Missions/MissionDetailPage';
 import { NotFoundPage } from './pages/NotFound/NotFoundPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import { ProgressPage } from './pages/Progress/ProgressPage';
+import { OnboardingPage } from './pages/Onboarding/OnboardingPage';
 import { ProfilePage } from './pages/Profile/ProfilePage';
 import { AppHelpPage } from './pages/Help/AppHelpPage';
 import { TracksPage } from './pages/Public/TracksPage';
@@ -28,7 +29,27 @@ import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/Auth/ResetPasswordPage';
 import { VerifyPage } from './pages/Auth/VerifyPage';
 import { AuthCallbackPage } from './pages/Auth/AuthCallbackPage';
+import { OnboardingGate } from './features/auth/OnboardingGate';
 import { RequireAuth } from './features/auth/RequireAuth';
+import { usePreferences } from './features/preferences/PreferencesProvider';
+
+// Lazy-loaded: the Lab's window-manager/desktop/terminal bundle is the heaviest part of the app
+// and public-site visitors should never have to download it (Phase 17 — spec §87).
+const AcademyEntry = lazy(() => import('./pages/Lab/LabPage').then((m) => ({ default: m.AcademyEntry })));
+const LessonLabPage = lazy(() => import('./pages/Lab/LabPage').then((m) => ({ default: m.LessonLabPage })));
+const MissionLabPage = lazy(() => import('./pages/Lab/LabPage').then((m) => ({ default: m.MissionLabPage })));
+
+function LabLoadingShell() {
+  const { t } = usePreferences();
+  return (
+    <div className="auth-loading-shell" role="status" aria-live="polite">
+      <span className="auth-loading-mark" aria-hidden>
+        &gt;_
+      </span>
+      <p>{t('labLoading')}</p>
+    </div>
+  );
+}
 
 export function AppRouter() {
   return (
@@ -38,7 +59,11 @@ export function AppRouter() {
         path="/app/lab"
         element={
           <RequireAuth>
-            <AcademyEntry />
+            <OnboardingGate>
+              <Suspense fallback={<LabLoadingShell />}>
+                <AcademyEntry />
+              </Suspense>
+            </OnboardingGate>
           </RequireAuth>
         }
       />
@@ -46,7 +71,11 @@ export function AppRouter() {
         path="/app/lab/files/:lessonId"
         element={
           <RequireAuth>
-            <LessonLabPage />
+            <OnboardingGate>
+              <Suspense fallback={<LabLoadingShell />}>
+                <LessonLabPage />
+              </Suspense>
+            </OnboardingGate>
           </RequireAuth>
         }
       />
@@ -54,7 +83,11 @@ export function AppRouter() {
         path="/app/lab/mission/:missionId"
         element={
           <RequireAuth>
-            <MissionLabPage />
+            <OnboardingGate>
+              <Suspense fallback={<LabLoadingShell />}>
+                <MissionLabPage />
+              </Suspense>
+            </OnboardingGate>
           </RequireAuth>
         }
       />
@@ -86,6 +119,7 @@ export function AppRouter() {
         }
       >
         <Route path="/app" element={<DashboardPage />} />
+        <Route path="/app/onboarding" element={<OnboardingPage />} />
         <Route path="/app/learn" element={<Navigate to="/app/learn/files" replace />} />
         <Route path="/app/learn/:trackId" element={<TrackPage />} />
         <Route path="/app/missions" element={<MissionsPage />} />

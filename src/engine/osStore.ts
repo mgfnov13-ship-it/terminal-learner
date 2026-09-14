@@ -14,6 +14,7 @@ import { MISSIONS, missionById } from '../data/missions';
 import { levelFromXp } from '../data/player';
 import { COMMAND_NAMES, executeCommand } from './commandParser';
 import { coachForStep, successCoach } from './coach';
+import { L } from '../lib/i18n';
 import { buildEnvironment, buildLessonEnvironment } from './lessonSetup';
 import { HOME } from './paths';
 import { applyCommandFlags, evaluatePracticeMission, withAchievements } from './progress';
@@ -224,7 +225,7 @@ class OSStore {
     this.toast('xp', `+${awarded.gained} XP`);
     playTone('xp', this.snap.settings.sound);
     this.emit({ xpBurst: awarded.gained, levelBurst: leveled ?? this.snap.levelBurst });
-    if (leveled) this.toast('ok', `Level ${leveled}`);
+    if (leveled) this.toast('ok', L(`Level ${leveled}`, `المستوى ${leveled}`));
     if (awarded.gained) window.setTimeout(() => this.emit({ xpBurst: 0 }), 1400);
     if (leveled) window.setTimeout(() => this.emit({ levelBurst: null }), 1800);
     return awarded.progress;
@@ -248,7 +249,7 @@ class OSStore {
     const { progress: next, achievements } = withAchievements(progress);
     for (const id of achievements) {
       const def = ACHIEVEMENTS.find((a) => a.id === id);
-      if (def) this.toast('achievement', 'Achievement unlocked', def.title);
+      if (def) this.toast('achievement', L('Achievement unlocked', 'أُنجز وسام'), def.title);
     }
     return next;
   }
@@ -327,10 +328,10 @@ class OSStore {
     const mission = MISSIONS.find((m) => m.id === result.completedMissionId);
     const awarded = this.applyXp(result.progress, xpKey(['mission', result.completedMissionId]), mission?.xp ?? 30);
     const next = this.finishProgress(awarded);
-    this.toast('ok', 'Mission complete', mission?.title);
+    this.toast('ok', L('Mission complete', 'اكتملت المهمة'), mission?.title);
     this.emit({
       progress: next,
-      coach: { tone: 'ok', title: 'Mission complete', body: 'That matches the objective.' },
+      coach: { tone: 'ok', title: L('Mission complete', 'اكتملت المهمة'), body: L('That matches the objective.', 'هذا يطابق الهدف.') },
     });
   }
 
@@ -619,7 +620,7 @@ class OSStore {
       };
       progress = this.applyXp(progress, xpKey(['lesson', lesson.id, 'complete']), lesson.xp);
       progress = this.finishProgress(progress);
-      this.toast('ok', 'Lesson complete', lesson.title);
+      this.toast('ok', L('Lesson complete', 'اكتمل الدرس'), lesson.title);
     } else {
       progress = { ...progress, currentStepIndex: lesson.steps.length };
     }
@@ -731,12 +732,12 @@ class OSStore {
     const id = this.snap.progress.activeMissionId;
     if (!id) return;
     this.startMission(id);
-    this.toast('info', 'Mission scenario reset');
+    this.toast('info', L('Mission scenario reset', 'أُعيد ضبط سيناريو المهمة'));
   }
 
   restartLesson() {
     this.startLesson(this.snap.progress.currentLessonId, 'fresh');
-    this.toast('info', 'Lesson restarted');
+    this.toast('info', L('Lesson restarted', 'أُعيد الدرس'));
   }
 
   retryStep() {
@@ -789,7 +790,7 @@ class OSStore {
     if (choiceId !== step.question.correctId) {
       this.emit({
         questionWrong: choiceId,
-        coach: { tone: 'try', title: 'Try again', body: step.question.explanation },
+        coach: { tone: 'try', title: L('Try again', 'أعد المحاولة'), body: step.question.explanation },
       });
       return;
     }
@@ -803,7 +804,7 @@ class OSStore {
     this.emit({
       progress,
       questionWrong: null,
-      coach: { tone: 'ok', title: 'Correct', body: step.question.explanation },
+      coach: { tone: 'ok', title: L('Correct', 'صحيح'), body: step.question.explanation },
     });
   }
 
@@ -861,7 +862,7 @@ class OSStore {
       return;
     }
     this.afterVfs({ ranCommand: false, deleted: true }, true);
-    this.toast('info', 'Moved to Recycle Bin');
+    this.toast('info', L('Moved to Recycle Bin', 'نُقل إلى سلة المحذوفات'));
   }
 
   explorerCopy(id: string) {
@@ -875,7 +876,7 @@ class OSStore {
       return;
     }
     this.afterVfs({ ranCommand: false, copied: true }, true);
-    this.toast('ok', 'File copied');
+    this.toast('ok', L('File copied', 'نُسخ الملف'));
   }
 
   restoreRecycle(index: number) {
@@ -885,7 +886,7 @@ class OSStore {
       return;
     }
     this.afterVfs({ ranCommand: false }, true);
-    this.toast('ok', 'Restored', result.path);
+    this.toast('ok', L('Restored', 'استُعيد'), result.path);
   }
 
   purgeRecycle(index: number) {
@@ -896,7 +897,7 @@ class OSStore {
   emptyRecycle() {
     this.snap.vfs.emptyRecycle();
     this.afterVfs({ ranCommand: false }, false);
-    this.toast('info', 'Recycle Bin emptied');
+    this.toast('info', L('Recycle Bin emptied', 'أُفرغت سلة المحذوفات'));
   }
 
   patchSettings(patch: Partial<SettingsState>) {
@@ -931,7 +932,7 @@ class OSStore {
       lastCommand: null,
       stepEvents: { ...EMPTY_EVENTS },
     });
-    this.toast('info', 'Simulated filesystem reset');
+    this.toast('info', L('Simulated filesystem reset', 'أُعيد ضبط القرص المحاكى'));
   }
 
   resetProgress() {
@@ -949,7 +950,7 @@ class OSStore {
       awaitingInput: false,
       highlightTerminal: false,
     });
-    this.toast('info', 'Progress reset');
+    this.toast('info', L('Progress reset', 'أُعيد ضبط التقدّم'));
   }
 
   exportProgress(): string {
@@ -959,7 +960,7 @@ class OSStore {
   importProgress(raw: string) {
     const parsed = parseImported(raw);
     if (!parsed) {
-      this.toast('error', 'That file is not a Terminal Space save.');
+      this.toast('error', L('That file is not a Terminal Space save.', 'هذا الملف ليس حفظاً لتيرمنال سبيس.'));
       return;
     }
     this.emit({
@@ -971,14 +972,17 @@ class OSStore {
       phase: 'desktop',
       ...this.tutorialFlags(parsed.progress),
     });
-    this.toast('ok', 'Progress imported');
+    this.toast('ok', L('Progress imported', 'استُورد التقدّم'));
   }
 
   resetCurrentMission() {
     this.askConfirm({
-      title: 'Restart this lesson?',
-      body: 'The virtual disk returns to this lesson’s starting folders. XP you already earned stays. Steps in this lesson reset.',
-      confirmLabel: 'Restart lesson',
+      title: L('Restart this lesson?', 'إعادة هذا الدرس؟'),
+      body: L(
+        'The virtual disk returns to this lesson’s starting folders. XP you already earned stays. Steps in this lesson reset.',
+        'يعود القرص المحاكى إلى مجلدات بداية هذا الدرس. نقاط الخبرة التي كسبتها تبقى. خطوات هذا الدرس تُعاد.',
+      ),
+      confirmLabel: L('Restart lesson', 'إعادة الدرس'),
       danger: true,
       onConfirm: () => this.restartLesson(),
     });

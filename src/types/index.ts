@@ -51,6 +51,8 @@ export interface WindowRecord {
 }
 
 export type Appearance = 'dark' | 'light' | 'system';
+export type LanguagePref = 'ar' | 'en';
+export type TextScalePref = 'standard' | 'large' | 'larger';
 
 export interface SettingsState {
   appearance: Appearance;
@@ -59,6 +61,9 @@ export interface SettingsState {
   sound: boolean;
   showHints: boolean;
   reducedMotion: boolean;
+  language: LanguagePref;
+  textScale: TextScalePref;
+  highContrast: boolean;
 }
 
 export interface UserProgress {

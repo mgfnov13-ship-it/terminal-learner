@@ -1,55 +1,44 @@
 import { COMMANDS } from '../../data/commands';
-
-const SHORTCUTS = [
-  ['Ctrl + L', 'Clear the terminal screen'],
-  ['Arrow Up / Down', 'Step through command history'],
-  ['Tab', 'Complete a command or file name'],
-  ['Ctrl + C', 'Clear the current input line'],
-  ['Esc', 'Close Start, menus, and dialogs'],
-];
-
-const TIPS = [
-  'Lessons watch the disk, not your keystrokes. If the folder exists, it counts.',
-  'dir and ls both list a folder. Use whichever you remember.',
-  'rmdir refuses a folder that still has files. Empty it, or use rmdir /s.',
-  'Deleted Explorer items sit in Recycle Bin until you empty it.',
-];
+import { LAB_HELP } from '../../data/pageCopy';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
+import { commandCategory, commandSummary } from '../../lib/localizeContent';
 
 export function HelpApp() {
+  const { t, bi, language } = usePreferences();
   const groups = [...new Set(COMMANDS.map((c) => c.category))];
   return (
     <div className="help">
-      <p className="lede">Commands run inside this browser. None of them reach your real machine.</p>
+      <p className="lede">{bi(LAB_HELP.lede)}</p>
       {groups.map((group) => (
         <section key={group}>
-          <h3>{group}</h3>
+          <h3>{commandCategory(group, language, group)}</h3>
           <ul>
             {COMMANDS.filter((c) => c.category === group).map((c) => (
               <li key={c.name}>
-                <code>{c.usage}</code>
-                <span>{c.summary}</span>
-                <em>{c.example}</em>
+                <code dir="ltr">{c.usage}</code>
+                <span>{commandSummary(c.name, language, c.summary)}</span>
+                <em dir="ltr">{c.example}</em>
               </li>
             ))}
           </ul>
         </section>
       ))}
       <section>
-        <h3>Keyboard</h3>
+        <h3>{t('keyboard')}</h3>
         <ul className="keys">
-          {SHORTCUTS.map(([k, d]) => (
-            <li key={k}>
-              <kbd>{k}</kbd>
-              <span>{d}</span>
+          {LAB_HELP.shortcuts.map(([k, d]) => (
+            <li key={k.en}>
+              <kbd dir="ltr">{bi(k)}</kbd>
+              <span>{bi(d)}</span>
             </li>
           ))}
         </ul>
       </section>
       <section>
-        <h3>Lab notes</h3>
+        <h3>{t('labNotes')}</h3>
         <ul className="tips">
-          {TIPS.map((t) => (
-            <li key={t}>{t}</li>
+          {LAB_HELP.tips.map((tip) => (
+            <li key={tip.en}>{bi(tip)}</li>
           ))}
         </ul>
       </section>

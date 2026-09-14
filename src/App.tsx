@@ -8,10 +8,12 @@ import { BurstLayer, ConfirmDialog, ContextMenu, ToastStack } from './components
 import { WindowManager } from './components/Windows/WindowManager';
 import { useAppChrome } from './hooks/useAppChrome';
 import { useOS, useOSApi } from './hooks/useOS';
+import { usePreferences } from './features/preferences/PreferencesProvider';
 
 export default function App() {
   const { phase, windows, settings } = useOS();
   const api = useOSApi();
+  const { t } = usePreferences();
   useAppChrome();
 
   useEffect(() => {
@@ -66,8 +68,11 @@ export default function App() {
 
   return (
     <div className="os-root">
+      <a className="skip-link" href="#lab-main">
+        {t('skipLab')}
+      </a>
       <LabTopBar />
-      <div className="lab-stage">
+      <div className="lab-stage" id="lab-main" tabIndex={-1} role="main">
         <Desktop />
         <WindowManager />
       </div>

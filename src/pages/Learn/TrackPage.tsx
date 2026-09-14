@@ -1,34 +1,39 @@
 import { Link, useParams } from 'react-router-dom';
+import { PLANNED_TRACK_COPY, NOT_FOUND_COPY, noTrackBody, plannedTrackTitle } from '../../data/pageCopy';
 import { trackById } from '../../data/tracks';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
+import { trackName, trackTagline } from '../../lib/localizeContent';
 import { FilesPathPage } from './FilesPathPage';
 import { NotFoundPage } from '../NotFound/NotFoundPage';
 
 /** /learn/:trackId — the Files path, an honest "planned" page, or a 404. */
 export function TrackPage() {
+  const { bi, language } = usePreferences();
   const { trackId } = useParams();
   const track = trackById(trackId);
+  const localizedName = track ? trackName(track.id, language) : undefined;
+  usePageTitle(track && track.id !== 'files' ? localizedName : undefined);
 
-  if (!track) return <NotFoundPage title="No such track" body={`Terminal Space has no track called “${trackId}”.`} />;
+  if (!track) {
+    return <NotFoundPage title={bi(NOT_FOUND_COPY.noTrack)} body={bi(noTrackBody(trackId ?? ''))} />;
+  }
   if (track.id === 'files') return <FilesPathPage />;
 
   return (
     <section className="planned">
-      <p className="kicker">Planned track</p>
-      <h1>{track.name} is not built yet</h1>
+      <p className="kicker">{bi(PLANNED_TRACK_COPY.kicker)}</p>
+      <h1>{bi(plannedTrackTitle(localizedName ?? track.name))}</h1>
       <p className="lede">
-        {track.tagline} There are no lessons behind this page, so rather than show you an empty path, here is the
-        honest version: it does not exist yet.
+        {trackTagline(track.id, language)} {bi(PLANNED_TRACK_COPY.honest)}
       </p>
-      <p>
-        The Files track is finished and is the right place to start — most of what you learn there (paths, arguments,
-        reading errors) is what makes the later tracks readable.
-      </p>
+      <p>{bi(PLANNED_TRACK_COPY.filesStart)}</p>
       <div className="cta-row">
         <Link className="btn-primary" to="/app/learn/files">
-          Go to the Files track
+          {bi(PLANNED_TRACK_COPY.goFiles)}
         </Link>
         <Link className="btn-secondary" to="/app">
-          Back to dashboard
+          {bi(PLANNED_TRACK_COPY.backDash)}
         </Link>
       </div>
     </section>

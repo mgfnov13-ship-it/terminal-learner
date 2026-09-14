@@ -1,65 +1,60 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
-import { sanitizeRedirect } from '../../features/auth/redirect';
+import { AuthFrame } from '../../components/Auth/AuthFrame';
+import { LoadingSkeleton } from '../../components/UI/Feedback';
+import { consumePostAuthPath, sanitizeRedirect } from '../../features/auth/redirect';
+import { clearGoogleOAuthPending } from '../../features/auth/googleOAuth';
 import { useAuth } from '../../features/auth/useAuth';
+import { usePreferences } from '../../features/preferences/PreferencesProvider';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
-/**
- * Lands here from a Supabase email-verification link, password-recovery link, or (later) an
- * OAuth provider. The Supabase client parses the URL itself (detectSessionInUrl), so this page
- * just waits for auth state to settle and routes based on what kind of session resulted.
- */
 export function AuthCallbackPage() {
+  const { t, bi } = usePreferences();
+  usePageTitle(t('signingYouIn'));
   const { user, loading, isPasswordRecovery, isConfigured } = useAuth();
   const [params] = useSearchParams();
-  const redirect = sanitizeRedirect(params.get('redirect'), '/app');
+  const stored = useRef<string | null>(null);
+  if (stored.current === null) stored.current = consumePostAuthPath('/app');
+  const redirect = sanitizeRedirect(params.get('redirect') ?? stored.current, '/app');
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setTimedOut(true), 6000);
-    return () => window.clearTimeout(t);
+    const timer = window.setTimeout(() => setTimedOut(true), 6000);
+    return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (user) clearGoogleOAuthPending();
+  }, [user]);
 
   if (!isConfigured) {
     return (
-      <section className="auth-page">
-        <div className="auth-card">
-          <p className="kicker">Sign-in link</p>
-          <h1>This link is invalid or has expired</h1>
-          <p className="lede">Terminal Space isn't connected to an account backend yet.</p>
-          <Link className="btn-secondary" to="/auth/sign-in">
-            Back to sign in
-          </Link>
-        </div>
-      </section>
+      <AuthFrame
+        kicker={bi({ en: 'Sign-in link', ar: 'رابط تسجيل الدخول' })}
+        title={bi({ en: 'This link is invalid or has expired', ar: 'هذا الرابط غير صالح أو منتهٍ' })}
+        description={t('notConnected')}
+      >
+        <Link className="btn-secondary" to="/auth/sign-in">
+          {bi({ en: 'Back to sign in', ar: 'العودة لتسجيل الدخول' })}
+        </Link>
+      </AuthFrame>
     );
   }
 
   if (isPasswordRecovery) return <Navigate to="/auth/reset-password" replace />;
   if (user) return <Navigate to={redirect} replace />;
 
-  if (loading && !timedOut) {
-    return (
-      <div className="auth-loading-shell" role="status" aria-live="polite">
-        <span className="auth-loading-mark" aria-hidden>
-          &gt;_
-        </span>
-        <p>Signing you in…</p>
-      </div>
-    );
-  }
+  if (loading && !timedOut) return <LoadingSkeleton label={t('signingYouIn')} />;
 
   return (
-    <section className="auth-page">
-      <div className="auth-card">
-        <p className="kicker">Sign-in link</p>
-        <h1>This link is invalid or has expired</h1>
-        <p className="lede">Request a new link and try again.</p>
-        <div className="cta-row">
-          <Link className="btn-primary" to="/auth/sign-in">
-            Back to sign in
-          </Link>
-        </div>
-      </div>
-    </section>
+    <AuthFrame
+      kicker={bi({ en: 'Sign-in link', ar: 'رابط تسجيل الدخول' })}
+      title={bi({ en: 'This link is invalid or has expired', ar: 'هذا الرابط غير صالح أو منتهٍ' })}
+      description={bi({ en: 'Request a new link and try again.', ar: 'اطلب رابطاً جديداً ثم أعد المحاولة.' })}
+    >
+      <Link className="btn-primary" to="/auth/sign-in">
+        {bi({ en: 'Back to sign in', ar: 'العودة لتسجيل الدخول' })}
+      </Link>
+    </AuthFrame>
   );
 }

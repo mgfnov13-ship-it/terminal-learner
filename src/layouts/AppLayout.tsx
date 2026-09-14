@@ -1,19 +1,29 @@
 import { Outlet } from 'react-router-dom';
-import { useAppChrome } from '../hooks/useAppChrome';
 import { ConfirmDialog, ToastStack } from '../components/UI/Chrome';
 import { AppNav } from '../components/Nav/AppNav';
+import { OnboardingGate } from '../features/auth/OnboardingGate';
+import { ProfileLoadError } from '../features/auth/ProfileLoadError';
+import { useAuth } from '../features/auth/useAuth';
+import { usePreferences } from '../features/preferences/PreferencesProvider';
 
-/** Authenticated learner workspace shell: dashboard, learn, missions, progress, achievements. */
 export function AppLayout() {
-  useAppChrome();
+  const { t } = usePreferences();
+  const { isConfigured, user, profile, profileLoading } = useAuth();
+
+  if (isConfigured && user && !profile && !profileLoading) {
+    return <ProfileLoadError />;
+  }
+
   return (
     <div className="site-shell app-shell">
       <a className="skip-link" href="#main">
-        Skip to content
+        {t('skip')}
       </a>
       <AppNav />
-      <main className="site-main" id="main">
-        <Outlet />
+      <main className="site-main" id="main" tabIndex={-1}>
+        <OnboardingGate>
+          <Outlet />
+        </OnboardingGate>
       </main>
       <ToastStack />
       <ConfirmDialog />
