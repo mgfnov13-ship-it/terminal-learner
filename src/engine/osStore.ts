@@ -15,6 +15,7 @@ import { levelFromXp } from '../data/player';
 import { COMMAND_NAMES, executeCommand } from './commandParser';
 import { coachForStep, successCoach } from './coach';
 import { L } from '../lib/i18n';
+import { isLabCompact } from './viewport';
 import { buildEnvironment, buildLessonEnvironment } from './lessonSetup';
 import { HOME } from './paths';
 import { applyCommandFlags, evaluatePracticeMission, withAchievements } from './progress';
@@ -94,15 +95,25 @@ function defaultWindows(): WindowRecord[] {
  * The lab is a side-by-side pair inside .lab-stage: terminal left, Guide right.
  * Both are sized from the stage so the whole lesson is visible without scrolling chrome.
  */
+function stageSize() {
+  const stage = document.querySelector('.lab-stage') as HTMLElement | null;
+  if (stage && stage.clientWidth > 0 && stage.clientHeight > 0) {
+    return { stageW: stage.clientWidth, stageH: stage.clientHeight };
+  }
+  return {
+    stageW: window.innerWidth,
+    stageH: Math.max(200, window.innerHeight - LAB_BAR_H - LAB_DOCK_H),
+  };
+}
+
 function labLayout() {
   const pad = 14;
   const gap = 14;
-  const stageW = window.innerWidth;
-  const stageH = window.innerHeight - LAB_BAR_H - LAB_DOCK_H;
+  const { stageW, stageH } = stageSize();
   const usableW = stageW - pad * 2 - gap;
-  const termW = Math.max(340, Math.round(usableW * 0.47));
-  const academyW = Math.max(360, usableW - termW);
-  const winH = Math.max(320, stageH - pad * 2);
+  const termW = Math.max(280, Math.round(usableW * 0.47));
+  const academyW = Math.max(300, usableW - termW);
+  const winH = Math.max(200, stageH - pad * 2);
   return {
     stageW,
     stageH,
@@ -362,25 +373,37 @@ class OSStore {
       this.openApp('academy');
       return;
     }
-    const mobile = typeof window !== 'undefined' && window.innerWidth < 720;
+    const compact = isLabCompact();
     if (this.snap.progress.completedLessonIds.length === 0 && this.snap.progress.currentStepIndex === 0) {
       this.emit({ cwd: activeLesson(this.snap.progress).startCwd });
     }
     const { terminal, academy } = labLayout();
-    this.openApp('terminal', undefined, mobile ? undefined : terminal);
-    this.openApp('academy', undefined, mobile ? undefined : academy);
+    this.openApp('terminal', undefined, compact ? undefined : terminal);
+    this.openApp('academy', undefined, compact ? undefined : academy);
+    if (compact && this.snap.awaitingInput) this.openApp('terminal');
   }
 
   /** Keep the lab readable when the viewport changes: re-tile the pair, clamp the rest. */
   fitToStage() {
-    if (typeof window === 'undefined' || window.innerWidth < 720) return;
+    if (typeof window === 'undefined') return;
+    const compact = isLabCompact();
     const { terminal, academy, stageW, stageH } = labLayout();
     const windows = this.snap.windows.map((w) => {
+      if (compact) {
+        return {
+          ...w,
+          maximized: true,
+          x: 0,
+          y: 0,
+          w: stageW,
+          h: stageH,
+        };
+      }
       if (w.maximized) return w;
-      if (w.appId === 'terminal') return { ...w, ...terminal };
-      if (w.appId === 'academy') return { ...w, ...academy };
-      const width = Math.min(w.w, stageW - 16);
-      const height = Math.min(w.h, stageH - 16);
+      if (w.appId === 'terminal') return { ...w, maximized: false, ...terminal };
+      if (w.appId === 'academy') return { ...w, maximized: false, ...academy };
+      const width = Math.min(w.w, Math.max(200, stageW - 16));
+      const height = Math.min(w.h, Math.max(160, stageH - 16));
       return {
         ...w,
         w: width,
@@ -417,20 +440,21 @@ class OSStore {
     }
     this.z += 1;
     const meta = APP_META[appId];
-    const mobile = typeof window !== 'undefined' && window.innerWidth < 720;
+    const compact = isLabCompact();
     const id = `w-${appId}-${Date.now()}`;
     const path = explorerPath ?? (appId === 'thispc' ? 'C:\\' : HOME);
+    const { stageW, stageH } = stageSize();
     const win: WindowRecord = {
       id,
       appId,
       title: meta.title,
-      x: layout?.x ?? (mobile ? 0 : 48 + (this.snap.windows.length % 6) * 28),
-      y: layout?.y ?? (mobile ? 0 : 36 + (this.snap.windows.length % 6) * 22),
-      w: mobile ? Math.min(window.innerWidth, meta.w) : (layout?.w ?? meta.w),
-      h: mobile ? Math.max(280, window.innerHeight - LAB_BAR_H - LAB_DOCK_H) : (layout?.h ?? meta.h),
+      x: layout?.x ?? (compact ? 0 : 48 + (this.snap.windows.length % 6) * 28),
+      y: layout?.y ?? (compact ? 0 : 36 + (this.snap.windows.length % 6) * 22),
+      w: compact ? stageW : (layout?.w ?? meta.w),
+      h: compact ? stageH : (layout?.h ?? meta.h),
       z: this.z,
       minimized: false,
-      maximized: mobile,
+      maximized: compact,
       explorerPath: path,
       explorerHistory: [path],
       explorerIndex: 0,

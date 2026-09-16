@@ -144,7 +144,7 @@ export function AccessibilityPanel({ iconOnly = false }: { iconOnly?: boolean })
 }
 
 /** Small language toggle for chrome that already has the full accessibility dialog nearby. */
-export function LanguageToggle() {
+export function LanguageToggle({ compact = false }: { compact?: boolean }) {
   const { language, setLanguage, t } = usePreferences();
   const other = language === 'en' ? 'ar' : 'en';
   return (
@@ -154,7 +154,11 @@ export function LanguageToggle() {
       onClick={() => setLanguage(other)}
       aria-label={t('language')}
     >
-      {other === 'ar' ? <span lang="ar">العربية</span> : <span lang="en">EN</span>}
+      {other === 'ar' ? (
+        <span lang="ar">{compact ? 'AR' : 'العربية'}</span>
+      ) : (
+        <span lang="en">EN</span>
+      )}
     </button>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { useOS, useOSApi } from '../../hooks/useOS';
+import { isLabCompact } from '../../engine/viewport';
 import { LiveRegion } from '../UI/Feedback';
 
 interface LogRow {
@@ -28,7 +29,7 @@ export function TerminalApp() {
   }, [log]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.innerWidth < 720) return;
+    if (isLabCompact()) return;
     input.current?.focus();
   }, []);
 

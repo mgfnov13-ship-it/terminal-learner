@@ -3,6 +3,7 @@ import { AccessibilityPanel } from '../A11y/AccessibilityPanel';
 import { useAuth } from '../../features/auth/useAuth';
 import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { useSyncStatus } from '../../features/sync/syncStatusStore';
+import { PHONE_QUERY, useMedia } from '../../hooks/useMedia';
 
 function initials(name: string | null | undefined, email: string | null | undefined): string {
   const source = (name ?? email ?? 'TS').trim();
@@ -15,6 +16,7 @@ export function AppNav() {
   const { t } = usePreferences();
   const { isConfigured, user, profile } = useAuth();
   const syncStatus = useSyncStatus();
+  const phone = useMedia(PHONE_QUERY);
   const showLocalModeLabel = import.meta.env.DEV && !isConfigured;
   const showSyncStatus = isConfigured && Boolean(user) && syncStatus !== 'idle';
   const links = [
@@ -23,6 +25,12 @@ export function AppNav() {
     { to: '/app/missions', label: t('missions') },
     { to: '/app/progress', label: t('progress') },
     { to: '/app/achievements', label: t('achievements') },
+    ...(phone
+      ? [
+          { to: '/app/help', label: t('help'), end: false },
+          { to: '/app/settings', label: t('settings'), end: false },
+        ]
+      : []),
   ];
 
   return (
@@ -53,12 +61,16 @@ export function AppNav() {
             </span>
           )}
           <AccessibilityPanel iconOnly />
-          <NavLink to="/app/help" className="app-nav-icon">
-            {t('help')}
-          </NavLink>
-          <NavLink to="/app/settings" className="app-nav-icon">
-            {t('settings')}
-          </NavLink>
+          {!phone ? (
+            <>
+              <NavLink to="/app/help" className="app-nav-icon">
+                {t('help')}
+              </NavLink>
+              <NavLink to="/app/settings" className="app-nav-icon">
+                {t('settings')}
+              </NavLink>
+            </>
+          ) : null}
           <NavLink
             to="/app/profile"
             className="app-nav-avatar"

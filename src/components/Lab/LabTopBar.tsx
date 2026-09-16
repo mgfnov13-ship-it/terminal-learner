@@ -8,17 +8,20 @@ import { lessonSubtitle, lessonTitle, trackName } from '../../lib/localizeConten
 import { FILES_TRACK, lessonNumber, trackLessons, unitNumber } from '../../data/tracks';
 import { activeLesson, currentUnit } from '../../engine/tutorial';
 import { useOS, useOSApi } from '../../hooks/useOS';
+import { LAB_COMPACT_QUERY, useMedia } from '../../hooks/useMedia';
 
 export function LabTopBar() {
-  const { progress } = useOS();
+  const { progress, windows, focusedId } = useOS();
   const api = useOSApi();
   const { t, bi, language } = usePreferences();
+  const compact = useMedia(LAB_COMPACT_QUERY);
   const navigate = useNavigate();
   const lesson = activeLesson(progress);
   const unit = currentUnit(progress);
   const level = levelFromXp(progress.xp);
   const next = nextThreshold(progress.xp);
   const pct = Math.round(levelProgress(progress.xp) * 100);
+  const focusedApp = windows.find((w) => w.id === focusedId)?.appId;
 
   return (
     <header className="labbar">
@@ -28,6 +31,32 @@ export function LabTopBar() {
         </span>
         <span className="labbar-word">{t('appName')}</span>
       </Link>
+
+      {compact ? (
+        <div className="lab-panes" role="tablist" aria-label={t('labPanes')}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={focusedApp === 'terminal'}
+            className={focusedApp === 'terminal' ? 'is-on' : undefined}
+            onClick={() => {
+              api.openApp('terminal');
+              api.focusTerminal();
+            }}
+          >
+            {t('terminal')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={focusedApp === 'academy'}
+            className={focusedApp === 'academy' ? 'is-on' : undefined}
+            onClick={() => api.openApp('academy')}
+          >
+            {t('guide')}
+          </button>
+        </div>
+      ) : null}
 
       <nav className="crumbs" aria-label={bi({ en: 'Breadcrumb', ar: 'مسار التنقل' })}>
         <Link to="/app/learn/files">{t('learn')}</Link>

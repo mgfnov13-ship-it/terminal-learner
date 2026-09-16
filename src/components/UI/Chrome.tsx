@@ -84,8 +84,12 @@ export function ContextMenu() {
   if (!contextMenu) return null;
   const { x, y, path, nodeId } = contextMenu;
   const node = nodeId ? vfs.get(nodeId) : undefined;
+  const menuW = 200;
+  const menuH = 220;
+  const left = Math.max(8, Math.min(x, window.innerWidth - menuW - 8));
+  const top = Math.max(8, Math.min(y, window.innerHeight - menuH - 8));
   return (
-    <div className="ctx" style={{ left: x, top: y }} role="menu">
+    <div className="ctx" style={{ left, top }} role="menu">
       {node && (
         <button
           type="button"

@@ -36,7 +36,7 @@
 }
 
 .skip-link:focus {
-  top: var(--space-3);
+  top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
 }
 
 /* ---------------------------------------------- N8 terminal-command nav */
@@ -45,6 +45,7 @@
   position: sticky;
   top: 0;
   z-index: var(--z-taskbar);
+  padding-top: env(safe-area-inset-top, 0px);
   border-bottom: 1px solid var(--line);
   background: color-mix(in oklch, var(--bg-deep) 86%, transparent);
   backdrop-filter: blur(10px);
@@ -66,9 +67,11 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  min-width: 0;
   color: var(--ink);
   font-weight: 600;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .site-mark-prompt {
@@ -125,9 +128,18 @@
 .site-main {
   flex: 1;
   width: 100%;
+  min-width: 0;
   max-width: 72rem;
   margin: 0 auto;
   padding: var(--space-6) clamp(1rem, 4vw, 1.5rem) var(--space-12);
+}
+
+.hero-copy,
+.hero-proof,
+.panel,
+.unit,
+.mission-row {
+  min-width: 0;
 }
 
 /* ------------------------------------------------------- shared pieces */
@@ -883,7 +895,7 @@ a.btn-secondary,
 
 .site-footer {
   border-top: 1px solid var(--line);
-  padding: var(--space-8) clamp(1rem, 4vw, 1.5rem) var(--space-10);
+  padding: var(--space-8) clamp(1rem, 4vw, 1.5rem) calc(var(--space-10) + env(safe-area-inset-bottom, 0px));
 }
 
 .site-footer p {
@@ -944,6 +956,10 @@ a.btn-secondary,
 
 .preferences-dialog {
   width: min(28rem, calc(100vw - 2rem));
+  max-height: min(36rem, calc(100dvh - 2rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  margin: max(1rem, env(safe-area-inset-top, 0px)) auto max(1rem, env(safe-area-inset-bottom, 0px));
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   padding: var(--space-5);
   background: var(--surface);
   color: var(--ink);
@@ -1037,11 +1053,23 @@ a.btn-secondary,
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-3) 0;
+  min-width: 0;
+}
+
+.ts-toggle > span:first-child {
+  min-width: 0;
 }
 
 .ts-toggle small {
   display: block;
   color: var(--ink-mute);
+}
+
+.ts-toggle input {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 24px;
+  accent-color: var(--accent);
 }
 
 .inline-notice {
@@ -1079,6 +1107,10 @@ a.btn-secondary,
 
 .confirm-dialog {
   width: min(26rem, calc(100vw - 2rem));
+  max-height: min(36rem, calc(100dvh - 2rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  margin: max(1rem, env(safe-area-inset-top, 0px)) auto max(1rem, env(safe-area-inset-bottom, 0px));
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   padding: var(--space-5);
   background: var(--surface);
   color: var(--ink);
@@ -1108,82 +1140,19 @@ a.btn-secondary,
 
 /* --------------------------------------------------------- responsive */
 
-@media (max-width: 60rem) {
-  .hero,
-  .numbered,
-  .dash-split,
-  .unit,
-  .mission-row {
-    grid-template-columns: 1fr;
-  }
-
-  .hero {
-    gap: var(--space-8);
-  }
-
-  .hero-proof {
-    padding-inline-start: 0;
-    padding-top: var(--space-6);
-    border-inline-start: 0;
-    border-top: 1px solid var(--line);
-  }
-
-  .numbered {
-    gap: var(--space-4);
-  }
-
-  .reasons > div {
-    grid-template-columns: 1fr;
-    gap: var(--space-1);
-  }
-
-  .mission-side {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-  }
+.site-nav-menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--ink-mute);
+  border-radius: var(--radius-sm);
 }
 
-@media (max-width: 40rem) {
-  .site-main {
-    padding-top: var(--space-5);
-  }
-
-  .stages li {
-    grid-template-columns: 3.5rem 1fr;
-    gap: var(--space-3);
-  }
-
-  .spec thead {
-    display: none;
-  }
-
-  .spec tbody th,
-  .spec td {
-    display: block;
-    width: auto;
-    border-bottom: 0;
-    padding: 0 0 var(--space-1);
-  }
-
-  .spec tbody tr {
-    display: block;
-    padding: var(--space-4) 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .lesson-row button {
-    grid-template-columns: 2rem 1fr;
-    gap: var(--space-3);
-  }
-
-  .lesson-state {
-    grid-column: 2;
-  }
-
-  .stat-rows > div {
-    font-size: var(--text-xs);
-  }
+.site-nav-menu:hover {
+  color: var(--ink);
+  background: var(--surface);
 }
 
 /* ------------------------------------------------------ public nav CTA */
@@ -1223,6 +1192,7 @@ a.btn-secondary,
   position: sticky;
   top: 0;
   z-index: var(--z-taskbar);
+  padding-top: env(safe-area-inset-top, 0px);
   border-bottom: 1px solid var(--line);
   background: color-mix(in oklch, var(--bg-deep) 92%, transparent);
   backdrop-filter: blur(10px);
@@ -1495,8 +1465,8 @@ a.btn-secondary,
   transform: translateY(-50%);
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   color: var(--ink-mute);
 }
 
@@ -1556,6 +1526,10 @@ a.btn-secondary,
   gap: var(--space-8);
   align-items: start;
   margin-bottom: var(--space-10);
+}
+
+.demo-shell > * {
+  min-width: 0;
 }
 
 .demo-terminal {
@@ -1634,28 +1608,6 @@ a.btn-secondary,
 .legal h2 {
   margin-top: var(--space-8);
   font-size: var(--text-xl);
-}
-
-@media (max-width: 60rem) {
-  .demo-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .app-nav-inner {
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-
-  .app-nav-links {
-    order: 3;
-    width: 100%;
-  }
-}
-
-@media (max-width: 40rem) {
-  .auth-card {
-    padding: var(--space-6);
-  }
 }
 
 /* --------------------------------------------------- learning path (Phase 8) */
@@ -1758,4 +1710,289 @@ a.btn-secondary,
   box-shadow: var(--shadow-pop);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
+}
+
+/* Keep these last so page-level rules above cannot override them. */
+@media (max-width: 63.99rem) {
+  .app-nav-inner {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .app-nav-links {
+    order: 3;
+    width: 100%;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .hero,
+  .numbered,
+  .dash-split,
+  .unit,
+  .mission-row,
+  .demo-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    gap: var(--space-8);
+    padding-block: var(--space-6) var(--space-8);
+  }
+
+  .hero-proof {
+    padding-inline-start: 0;
+    padding-top: var(--space-6);
+    border-inline-start: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .numbered {
+    gap: var(--space-4);
+    padding-block: var(--space-8);
+  }
+
+  .reasons > div {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .mission-side {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .site-nav-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--space-2);
+    row-gap: 0;
+  }
+
+  .site-mark {
+    grid-column: 1;
+    grid-row: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .site-nav-cta {
+    grid-column: 2;
+    grid-row: 1;
+    gap: var(--space-1);
+  }
+
+  .site-nav-caret {
+    display: none;
+  }
+
+  .site-nav-menu {
+    display: inline-flex;
+  }
+
+  .site-nav-links {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding-block: var(--space-2) var(--space-3);
+    border-top: 1px solid var(--line);
+  }
+
+  .site-nav-inner.is-open .site-nav-links {
+    display: flex;
+  }
+
+  .site-nav-cta .utility-button {
+    padding-inline: 0;
+    justify-content: center;
+  }
+
+  .cta-row .btn-primary,
+  .cta-row .btn-secondary,
+  .cta-row .btn-chip {
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .app-mark {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .auth-utilities {
+    display: none;
+  }
+
+  .app-nav-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .app-nav-links {
+    order: 3;
+    width: auto;
+    grid-column: 1 / -1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .app-nav-links a {
+    flex: 0 0 auto;
+  }
+
+  .app-nav-badge,
+  .app-nav-sync {
+    display: none;
+  }
+
+  .app-nav-avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .site-main {
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-8);
+  }
+
+  .site-main h1 {
+    font-size: clamp(1.65rem, 8vw, 2.2rem);
+    line-height: 1.12;
+    overflow-wrap: break-word;
+  }
+
+  .site-main h2,
+  .panel > h2,
+  .unit-head h2 {
+    overflow-wrap: break-word;
+  }
+
+  .site-main .lede {
+    font-size: var(--text-md);
+  }
+
+  .stages li {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .spec {
+    display: block;
+  }
+
+  .spec thead {
+    display: none;
+  }
+
+  .spec tbody,
+  .spec tr,
+  .spec tbody th,
+  .spec td {
+    display: block;
+    width: auto;
+    border-bottom: 0;
+  }
+
+  .spec tbody th,
+  .spec td {
+    padding: 0 0 var(--space-1);
+  }
+
+  .spec tbody tr {
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .lesson-row button {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .lesson-state {
+    grid-column: 2;
+  }
+
+  .stat-rows > div {
+    font-size: var(--text-xs);
+  }
+
+  .auth-page {
+    padding-block: var(--space-6);
+  }
+
+  .auth-card {
+    padding: var(--space-5);
+  }
+
+  .badge-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mini-list.is-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .return-to-current {
+    width: min(calc(100vw - 2rem), 24rem);
+    justify-content: center;
+    bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  }
+
+  input,
+  select,
+  textarea,
+  .auth-form input,
+  .auth-form select,
+  .auth-form textarea,
+  .ts-field input,
+  .password-field input,
+  .demo-input-row input {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+  .hero {
+    gap: var(--space-6);
+    padding-block: var(--space-6) var(--space-10);
+  }
+
+  .hero-proof {
+    padding-inline-start: var(--space-5);
+  }
+
+  .unit {
+    grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .mission-row {
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem);
+    gap: var(--space-4);
+  }
+
+  .dash-split {
+    gap: var(--space-4);
+  }
+
+  .demo-shell {
+    gap: var(--space-5);
+  }
+
+  .site-main h1 {
+    font-size: clamp(1.85rem, 3.6vw, 2.5rem);
+  }
 }

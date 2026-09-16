@@ -9,11 +9,13 @@ import { WindowManager } from './components/Windows/WindowManager';
 import { useAppChrome } from './hooks/useAppChrome';
 import { useOS, useOSApi } from './hooks/useOS';
 import { usePreferences } from './features/preferences/PreferencesProvider';
+import { LAB_COMPACT_QUERY, useMedia } from './hooks/useMedia';
 
 export default function App() {
   const { phase, windows, settings } = useOS();
   const api = useOSApi();
   const { t } = usePreferences();
+  const compact = useMedia(LAB_COMPACT_QUERY);
   useAppChrome();
 
   useEffect(() => {
@@ -42,6 +44,10 @@ export default function App() {
   }, [api]);
 
   useEffect(() => {
+    api.fitToStage();
+  }, [api, compact]);
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         api.toggleStart(false);
@@ -67,7 +73,7 @@ export default function App() {
   if (phase === 'boot') return <BootScreen />;
 
   return (
-    <div className="os-root">
+    <div className={`os-root${compact ? ' is-compact' : ''}`}>
       <a className="skip-link" href="#lab-main">
         {t('skipLab')}
       </a>

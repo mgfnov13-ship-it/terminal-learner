@@ -30,7 +30,7 @@ describe('a11y contracts', () => {
 
   it('defines a skip-link that becomes visible on focus', () => {
     expect(pagesCss).toMatch(/\.skip-link\s*\{/);
-    expect(pagesCss).toMatch(/\.skip-link:focus\s*\{[\s\S]*top:\s*var\(--space-3\)/);
+    expect(pagesCss).toMatch(/\.skip-link:focus\s*\{[\s\S]*env\(safe-area-inset-top/);
   });
 
   it('uses :focus-visible for interactive controls', () => {
@@ -46,6 +46,12 @@ describe('a11y contracts', () => {
     expect(indexCss).toMatch(/\[dir="rtl"\] \.dir-arrow/);
     expect(indexCss).toMatch(/inset-inline-end/);
     expect(pagesCss).toMatch(/text-align:\s*start/);
+  });
+
+  it('collapses public chrome below phone width without a desktop-only breakpoint', () => {
+    expect(pagesCss).toMatch(/@media \(max-width: 47\.99rem\)/);
+    expect(pagesCss).toMatch(/\.site-nav-menu/);
+    expect(indexCss).toMatch(/\.lab-panes/);
   });
 
   it('honors both OS and in-app reduced motion', () => {
