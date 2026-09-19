@@ -1,11 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthFrame } from '../../components/Auth/AuthFrame';
-import { GoogleMark } from '../../components/Auth/GoogleMark';
 import { PasswordInput } from '../../components/Form/PasswordInput';
 import { InlineNotice } from '../../components/UI/Feedback';
 import { Field as FormField } from '../../components/UI/Primitives';
-import { hasPendingGoogleOAuth } from '../../features/auth/googleOAuth';
 import { crossAuthLink, persistPostAuthPath, sanitizeRedirect } from '../../features/auth/redirect';
 import { useAuth } from '../../features/auth/useAuth';
 import { VALIDATION_COPY, validateConfirmPassword, validateEmail, validatePassword } from '../../features/auth/validation';
@@ -15,7 +13,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 export function SignUpPage() {
   const { t, bi } = usePreferences();
   usePageTitle(t('signUp'));
-  const { user, signUp, signInWithGoogle, isConfigured } = useAuth();
+  const { user, signUp, isConfigured } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const redirect = sanitizeRedirect(params.get('redirect'));
@@ -26,7 +24,6 @@ export function SignUpPage() {
   const [fieldError, setFieldError] = useState<{ email?: string; password?: string; confirm?: string }>({});
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(hasPendingGoogleOAuth);
 
   if (user) return <Navigate to={redirect} replace />;
 
@@ -47,28 +44,21 @@ export function SignUpPage() {
     setError(null);
     setFieldError({});
     persistPostAuthPath(redirect);
-    const { error: authError } = await signUp(email.trim(), password);
+    const { error: authError, session } = await signUp(email.trim(), password);
     setSubmitting(false);
     if (authError) {
       setError(bi(authError));
+      return;
+    }
+    if (session) {
+      navigate(redirect, { replace: true });
       return;
     }
     const next = encodeURIComponent(redirect);
     navigate(`/auth/verify?email=${encodeURIComponent(email.trim())}&redirect=${next}`);
   }
 
-  async function onGoogle() {
-    setGoogleLoading(true);
-    setError(null);
-    persistPostAuthPath(redirect);
-    const { error: authError } = await signInWithGoogle();
-    if (authError) {
-      setGoogleLoading(false);
-      setError(bi(authError));
-    }
-  }
-
-  const busy = submitting || googleLoading;
+  const busy = submitting;
   const confirmLive = confirm.length > 0 && confirm !== password ? bi(VALIDATION_COPY.confirm_mismatch) : undefined;
 
   return (
@@ -81,15 +71,6 @@ export function SignUpPage() {
       })}
     >
       {!isConfigured && <p className="auth-note">{t('notConnected')}</p>}
-      <div className="auth-form">
-        <button type="button" className="btn-secondary google-btn" disabled={busy} onClick={onGoogle} aria-busy={googleLoading || undefined}>
-          <GoogleMark />
-          {googleLoading ? t('signingIn') : t('continueWithGoogle')}
-        </button>
-        <p className="auth-sep" role="separator">
-          {t('orEmail')}
-        </p>
-      </div>
       <form className="auth-form" onSubmit={onSubmit} noValidate>
         <FormField
           id="signup-email"

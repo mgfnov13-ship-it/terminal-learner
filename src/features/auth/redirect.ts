@@ -39,6 +39,10 @@ export function sanitizeRedirect(raw: string | null, fallback = '/app'): string 
   }
 }
 
+export function signInRedirectPath(path: string): string {
+  return `/auth/sign-in?redirect=${encodeURIComponent(sanitizeRedirect(path))}`;
+}
+
 /** Forwards `?redirect=` across sign-in ↔ sign-up ↔ forgot without re-sanitizing yet. */
 export function crossAuthLink(path: '/auth/sign-in' | '/auth/sign-up' | '/auth/forgot-password'): string {
   if (typeof window === 'undefined') return path;

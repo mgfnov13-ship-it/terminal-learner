@@ -183,20 +183,6 @@ export function SettingsBody() {
   );
 }
 
-function hasPasswordProvider(user: ReturnType<typeof useAuth>['user']): boolean {
-  const identities = user?.identities ?? [];
-  if (identities.some((i) => i.provider === 'email')) return true;
-  const providers = (user?.app_metadata?.providers as string[] | undefined) ?? [];
-  return providers.includes('email');
-}
-
-function hasGoogleProvider(user: ReturnType<typeof useAuth>['user']): boolean {
-  const identities = user?.identities ?? [];
-  if (identities.some((i) => i.provider === 'google')) return true;
-  const providers = (user?.app_metadata?.providers as string[] | undefined) ?? [];
-  return providers.includes('google') || user?.app_metadata?.provider === 'google';
-}
-
 function AccountSection() {
   const { isConfigured, user, signOut } = useAuth();
   const { t, bi } = usePreferences();
@@ -219,16 +205,13 @@ function AccountSection() {
     );
   }
 
-  const google = hasGoogleProvider(user);
-  const password = hasPasswordProvider(user);
-
   return (
     <section id="account">
       <h3>{t('account')}</h3>
       <p className="settings-scope" dir="ltr">
         {user.email}
       </p>
-      {google && !password ? <p className="muted">{t('signedInGoogle')}</p> : <ChangePasswordForm />}
+      <ChangePasswordForm />
       <button
         type="button"
         onClick={() => signOut()}

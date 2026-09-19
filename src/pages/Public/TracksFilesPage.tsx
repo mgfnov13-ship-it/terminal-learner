@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { DirArrow } from '../../components/UI/Primitives';
 import { FILES_TRACK, trackLessons } from '../../data/tracks';
 import { TRACKS_FILES_COPY, publishedLessonsNote, startWithUnit } from '../../data/pageCopy';
+import { signInRedirectPath } from '../../features/auth/redirect';
 import { useAuth } from '../../features/auth/useAuth';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { usePreferences } from '../../features/preferences/PreferencesProvider';
@@ -10,7 +11,7 @@ import { trackBlurb, trackName, unitName, unitSummary } from '../../lib/localize
 export function TracksFilesPage() {
   const { t, bi, language } = usePreferences();
   usePageTitle(trackName(FILES_TRACK.id, language));
-  const { user, isConfigured } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const lessons = trackLessons(FILES_TRACK);
   const builtUnits = FILES_TRACK.units.filter((u) => u.lessonIds.length > 0).length;
@@ -21,7 +22,7 @@ export function TracksFilesPage() {
       navigate('/app/learn/files');
       return;
     }
-    navigate(isConfigured ? '/auth/sign-up' : '/app');
+    navigate(signInRedirectPath('/app/learn/files'));
   }
 
   return (

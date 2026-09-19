@@ -3,7 +3,6 @@ import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { AuthFrame } from '../../components/Auth/AuthFrame';
 import { LoadingSkeleton } from '../../components/UI/Feedback';
 import { consumePostAuthPath, sanitizeRedirect } from '../../features/auth/redirect';
-import { clearGoogleOAuthPending } from '../../features/auth/googleOAuth';
 import { useAuth } from '../../features/auth/useAuth';
 import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { usePageTitle } from '../../hooks/usePageTitle';
@@ -22,10 +21,6 @@ export function AuthCallbackPage() {
     const timer = window.setTimeout(() => setTimedOut(true), 6000);
     return () => window.clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    if (user) clearGoogleOAuthPending();
-  }, [user]);
 
   if (!isConfigured) {
     return (

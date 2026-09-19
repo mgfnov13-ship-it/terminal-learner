@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AccessibilityPanel, LanguageToggle } from '../A11y/AccessibilityPanel';
+import { signInRedirectPath } from '../../features/auth/redirect';
 import { useAuth } from '../../features/auth/useAuth';
 import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { PHONE_QUERY, useMedia } from '../../hooks/useMedia';
@@ -9,7 +10,7 @@ import { PHONE_QUERY, useMedia } from '../../hooks/useMedia';
 export function SiteNav() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isConfigured } = useAuth();
+  const { user } = useAuth();
   const { t } = usePreferences();
   const phone = useMedia(PHONE_QUERY);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -56,7 +57,7 @@ export function SiteNav() {
               <NavLink to="/auth/sign-in" className="site-nav-signin">
                 {t('signIn')}
               </NavLink>
-              <NavLink to={isConfigured ? '/auth/sign-up' : '/app'}>{t('startLearning')}</NavLink>
+              <NavLink to={signInRedirectPath('/app/learn/files')}>{t('startLearning')}</NavLink>
             </>
           ) : null}
         </nav>
@@ -91,7 +92,7 @@ export function SiteNav() {
               <button
                 type="button"
                 className="btn-chip"
-                onClick={() => navigate(isConfigured ? '/auth/sign-up' : '/app')}
+                onClick={() => navigate(signInRedirectPath('/app/learn/files'))}
               >
                 {t('startLearning')}
               </button>

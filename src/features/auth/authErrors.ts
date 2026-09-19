@@ -7,7 +7,6 @@ export type AuthErrorCode =
   | 'rate_limited'
   | 'network'
   | 'weak_password'
-  | 'provider_disabled'
   | 'not_connected'
   | 'not_signed_in'
   | 'unknown';
@@ -37,10 +36,6 @@ const COPY: Record<AuthErrorCode, LocalizedText> = {
     en: 'Password must be at least 8 characters.',
     ar: 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
   },
-  provider_disabled: {
-    en: 'Google sign-in is not available on this project yet.',
-    ar: 'تسجيل الدخول عبر Google غير متاح في هذا المشروع بعد.',
-  },
   not_connected: {
     en: "Terminal Space isn't connected to an account backend yet.",
     ar: 'تيرمنال سبيس غير متصل بخدمة حسابات بعد.',
@@ -66,9 +61,6 @@ export function classifyAuthMessage(message: string | undefined): AuthErrorCode 
   if (m.includes('rate limit') || m.includes('over_request')) return 'rate_limited';
   if (m.includes('network') || m.includes('fetch') || m.includes('failed to fetch')) return 'network';
   if (m.includes('password') && m.includes('at least')) return 'weak_password';
-  if (m.includes('unsupported provider') || m.includes('provider is not enabled') || m.includes('validation_failed')) {
-    return 'provider_disabled';
-  }
   return 'unknown';
 }
 

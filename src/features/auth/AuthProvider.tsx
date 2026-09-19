@@ -3,7 +3,6 @@ import type { Session, User } from '@supabase/supabase-js';
 import type { LocalizedText } from '../../lib/i18n';
 import { isSupabaseConfigured, supabase } from '../../lib/supabase/client';
 import { authErrorCodeCopy, authErrorCopy } from './authErrors';
-import { clearGoogleOAuthPending, markGoogleOAuthPending } from './googleOAuth';
 
 export interface Profile {
   id: string;
@@ -12,7 +11,7 @@ export interface Profile {
   onboarding_complete: boolean;
 }
 
-export type AuthResult = { error: LocalizedText | null };
+export type AuthResult = { error: LocalizedText | null; session?: Session | null };
 
 export interface AuthContextValue {
   user: User | null;
@@ -24,7 +23,6 @@ export interface AuthContextValue {
   isPasswordRecovery: boolean;
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signUp: (email: string, password: string) => Promise<AuthResult>;
-  signInWithGoogle: () => Promise<AuthResult>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<AuthResult>;
   updatePassword: (password: string) => Promise<AuthResult>;
@@ -75,7 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       if (data.session?.user) {
-        clearGoogleOAuthPending();
         void loadProfile(data.session.user.id);
       }
       setLoading(false);
@@ -89,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
         generation.current += 1;
       }
-      if (event === 'SIGNED_IN') clearGoogleOAuthPending();
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
       if (nextSession?.user) void loadProfile(nextSession.user.id);
@@ -118,25 +114,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     async signUp(email, password) {
       if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
-      return error ? fail(error.message) : { error: null };
-    },
-    async signInWithGoogle() {
-      if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
-      markGoogleOAuthPending();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
-      });
-      if (error) {
-        clearGoogleOAuthPending();
-        return fail(error.message);
-      }
-      return { error: null };
+      return error ? fail(error.message) : { error: null, session: data.session };
     },
     async signOut() {
       if (!isSupabaseConfigured) return;

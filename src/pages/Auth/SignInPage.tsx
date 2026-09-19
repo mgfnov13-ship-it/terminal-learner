@@ -1,12 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { AuthFrame } from '../../components/Auth/AuthFrame';
-import { GoogleMark } from '../../components/Auth/GoogleMark';
 import { PasswordInput } from '../../components/Form/PasswordInput';
 import { InlineNotice } from '../../components/UI/Feedback';
 import { Field as FormField } from '../../components/UI/Primitives';
 import { crossAuthLink, persistPostAuthPath, sanitizeRedirect } from '../../features/auth/redirect';
-import { hasPendingGoogleOAuth } from '../../features/auth/googleOAuth';
 import { useAuth } from '../../features/auth/useAuth';
 import { VALIDATION_COPY, validateEmail } from '../../features/auth/validation';
 import { usePreferences } from '../../features/preferences/PreferencesProvider';
@@ -15,7 +13,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 export function SignInPage() {
   const { t, bi } = usePreferences();
   usePageTitle(t('signIn'));
-  const { user, signIn, signInWithGoogle, isConfigured } = useAuth();
+  const { user, signIn, isConfigured } = useAuth();
   const [params] = useSearchParams();
   const redirect = sanitizeRedirect(params.get('redirect'));
 
@@ -24,7 +22,6 @@ export function SignInPage() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(hasPendingGoogleOAuth);
 
   if (user) return <Navigate to={redirect} replace />;
 
@@ -48,18 +45,7 @@ export function SignInPage() {
     if (authError) setError(bi(authError));
   }
 
-  async function onGoogle() {
-    setGoogleLoading(true);
-    setError(null);
-    persistPostAuthPath(redirect);
-    const { error: authError } = await signInWithGoogle();
-    if (authError) {
-      setGoogleLoading(false);
-      setError(bi(authError));
-    }
-  }
-
-  const busy = submitting || googleLoading;
+  const busy = submitting;
 
   return (
     <AuthFrame
@@ -71,15 +57,6 @@ export function SignInPage() {
       })}
     >
       {!isConfigured && <p className="auth-note">{t('notConnected')}</p>}
-      <div className="auth-form">
-        <button type="button" className="btn-secondary google-btn" disabled={busy} onClick={onGoogle} aria-busy={googleLoading || undefined}>
-          <GoogleMark />
-          {googleLoading ? t('signingIn') : t('continueWithGoogle')}
-        </button>
-        <p className="auth-sep" role="separator">
-          {t('orEmail')}
-        </p>
-      </div>
       <form className="auth-form" onSubmit={onSubmit} noValidate>
         <FormField
           id="signin-email"

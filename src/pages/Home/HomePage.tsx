@@ -4,6 +4,7 @@ import { DirArrow } from '../../components/UI/Primitives';
 import { FILES_TRACK, PLANNED_TRACKS, lessonNumber, trackLessons, unitNumber } from '../../data/tracks';
 import { HOME_COPY, lessonsUnitsBuilt } from '../../data/pageCopy';
 import { activeLesson, currentUnit, filesLessonProgress } from '../../engine/tutorial';
+import { signInRedirectPath } from '../../features/auth/redirect';
 import { useAuth } from '../../features/auth/useAuth';
 import { usePreferences } from '../../features/preferences/PreferencesProvider';
 import { useOS } from '../../hooks/useOS';
@@ -15,7 +16,7 @@ export function HomePage() {
     document.title = `${t('appName')} — ${bi(HOME_COPY.titleSuffix)}`;
   }, [bi, t]);
   const navigate = useNavigate();
-  const { user, isConfigured } = useAuth();
+  const { user } = useAuth();
   const { progress } = useOS();
   const lessons = trackLessons(FILES_TRACK);
   const files = filesLessonProgress(progress);
@@ -29,7 +30,7 @@ export function HomePage() {
       navigate(started ? `/app/lab/files/${lesson.id}` : '/app/learn/files');
       return;
     }
-    navigate(isConfigured ? '/auth/sign-up' : '/app');
+    navigate(signInRedirectPath('/app/learn/files'));
   }
 
   return (
