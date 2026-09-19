@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AccessibilityPanel, LanguageToggle } from '../A11y/AccessibilityPanel';
+import { isAdminEmail } from '../../features/auth/admin';
 import { signInRedirectPath } from '../../features/auth/redirect';
 import { useAuth } from '../../features/auth/useAuth';
 import { usePreferences } from '../../features/preferences/PreferencesProvider';
@@ -11,8 +12,9 @@ export function SiteNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { t } = usePreferences();
+  const { t, bi } = usePreferences();
   const phone = useMedia(PHONE_QUERY);
+  const isAdmin = isAdminEmail(user?.email);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
@@ -52,6 +54,9 @@ export function SiteNav() {
           {phone && user ? (
             <NavLink to="/app">{t('dashboard')}</NavLink>
           ) : null}
+          {phone && user && isAdmin ? (
+            <NavLink to="/admin">{bi({ en: 'Admin', ar: 'الإدارة' })}</NavLink>
+          ) : null}
           {phone && !user ? (
             <>
               <NavLink to="/auth/sign-in" className="site-nav-signin">
@@ -80,9 +85,16 @@ export function SiteNav() {
             </button>
           ) : null}
           {!phone && user ? (
-            <button type="button" className="btn-chip" onClick={() => navigate('/app')}>
-              {t('dashboard')}
-            </button>
+            <>
+              {isAdmin ? (
+                <button type="button" className="btn-secondary" onClick={() => navigate('/admin')}>
+                  {bi({ en: 'Admin', ar: 'الإدارة' })}
+                </button>
+              ) : null}
+              <button type="button" className="btn-chip" onClick={() => navigate('/app')}>
+                {t('dashboard')}
+              </button>
+            </>
           ) : null}
           {!phone && !user ? (
             <>

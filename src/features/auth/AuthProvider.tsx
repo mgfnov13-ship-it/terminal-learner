@@ -1,4 +1,4 @@
-import { createContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import type { LocalizedText } from '../../lib/i18n';
 import { isSupabaseConfigured, supabase } from '../../lib/supabase/client';
@@ -48,19 +48,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const mounted = useRef(true);
   const generation = useRef(0);
+  const authEventSeen = useRef(false);
 
-  async function loadProfile(userId: string) {
+  const loadProfile = useCallback(async (userId: string) => {
     if (!isSupabaseConfigured) return;
     const my = ++generation.current;
     setProfileLoading(true);
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
-    if (!mounted.current || my !== generation.current) return;
-    setProfile((data as Profile) ?? null);
-    setProfileLoading(false);
-  }
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (error) throw error;
+      if (!mounted.current || my !== generation.current) return;
+      setProfile((data as Profile) ?? null);
+    } catch (error) {
+      if (!mounted.current || my !== generation.current) return;
+      console.error('Terminal Space: profile sync failed.', error);
+      setProfile(null);
+    } finally {
+      if (mounted.current && my === generation.current) setProfileLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     mounted.current = true;
+    authEventSeen.current = false;
     if (!isSupabaseConfigured) {
       setLoading(false);
       return () => {
@@ -68,18 +78,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted.current) return;
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        void loadProfile(data.session.user.id);
-      }
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (!mounted.current || authEventSeen.current) return;
+        if (error) console.error('Terminal Space: could not restore the Supabase session.', error);
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        setLoading(false);
+      })
+      .catch((error: unknown) => {
+        if (!mounted.current || authEventSeen.current) return;
+        console.error('Terminal Space: could not restore the Supabase session.', error);
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+      });
 
+    // Keep this callback state-only; profile requests run in the effect below so they cannot
+    // contend with Supabase Auth's internal lock.
     const { data: sub } = supabase.auth.onAuthStateChange((event, nextSession) => {
       if (!mounted.current) return;
+      authEventSeen.current = true;
       if (event === 'PASSWORD_RECOVERY') setIsPasswordRecovery(true);
       if (event === 'SIGNED_OUT') {
         setIsPasswordRecovery(false);
@@ -88,8 +108,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
-      if (nextSession?.user) void loadProfile(nextSession.user.id);
-      else setProfileLoading(false);
+      if (!nextSession?.user) {
+        setProfile(null);
+        setProfileLoading(false);
+      } else {
+        setProfile(null);
+      }
       setLoading(false);
     });
 
@@ -98,6 +122,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sub.subscription.unsubscribe();
     };
   }, []);
+
+  const profileUserId = user?.id ?? null;
+
+  useEffect(() => {
+    if (!profileUserId || !isSupabaseConfigured) {
+      setProfile(null);
+      setProfileLoading(false);
+      return;
+    }
+
+    void loadProfile(profileUserId);
+    return () => {
+      generation.current += 1;
+    };
+  }, [profileUserId, loadProfile]);
 
   const value: AuthContextValue = {
     user,
@@ -109,39 +148,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isPasswordRecovery,
     async signIn(email, password) {
       if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      return error ? fail(error.message) : { error: null };
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        return error ? fail(error.message) : { error: null };
+      } catch (error) {
+        return fail(error instanceof Error ? error.message : undefined);
+      }
     },
     async signUp(email, password) {
       if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-      });
-      return error ? fail(error.message) : { error: null, session: data.session };
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        });
+        return error ? fail(error.message) : { error: null, session: data.session };
+      } catch (error) {
+        return fail(error instanceof Error ? error.message : undefined);
+      }
     },
     async signOut() {
       if (!isSupabaseConfigured) return;
-      await supabase.auth.signOut();
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) console.error('Terminal Space: Supabase sign-out failed.', error);
+      } catch (error) {
+        console.error('Terminal Space: Supabase sign-out failed.', error);
+      }
     },
     async resetPassword(email) {
       if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      });
-      return error ? fail(error.message) : { error: null };
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        });
+        return error ? fail(error.message) : { error: null };
+      } catch (error) {
+        return fail(error instanceof Error ? error.message : undefined);
+      }
     },
     async updatePassword(password) {
       if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
-      const { error } = await supabase.auth.updateUser({ password });
-      if (!error) setIsPasswordRecovery(false);
-      return error ? fail(error.message) : { error: null };
+      try {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (!error) setIsPasswordRecovery(false);
+        return error ? fail(error.message) : { error: null };
+      } catch (error) {
+        return fail(error instanceof Error ? error.message : undefined);
+      }
     },
     async resendVerification(email) {
       if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
-      const { error } = await supabase.auth.resend({ type: 'signup', email });
-      return error ? fail(error.message) : { error: null };
+      try {
+        const { error } = await supabase.auth.resend({ type: 'signup', email });
+        return error ? fail(error.message) : { error: null };
+      } catch (error) {
+        return fail(error instanceof Error ? error.message : undefined);
+      }
     },
     async refreshProfile() {
       if (user) await loadProfile(user.id);
@@ -149,10 +213,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async updateProfile(patch) {
       if (!isSupabaseConfigured) return { error: authErrorCodeCopy('not_connected') };
       if (!user) return { error: authErrorCodeCopy('not_signed_in') };
-      const { error } = await supabase.from('profiles').update(patch).eq('id', user.id);
-      if (error) return fail(error.message);
-      setProfile((prev) => (prev ? { ...prev, ...patch } : prev));
-      return { error: null };
+      try {
+        const { data, error } = await supabase.from('profiles').update(patch).eq('id', user.id).select('id').maybeSingle();
+        if (error) return fail(error.message);
+        if (!data) return fail('profile not found');
+        setProfile((prev) => (prev ? { ...prev, ...patch } : prev));
+        return { error: null };
+      } catch (error) {
+        return fail(error instanceof Error ? error.message : undefined);
+      }
     },
   };
 

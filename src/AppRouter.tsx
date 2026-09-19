@@ -29,8 +29,10 @@ import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/Auth/ResetPasswordPage';
 import { VerifyPage } from './pages/Auth/VerifyPage';
 import { AuthCallbackPage } from './pages/Auth/AuthCallbackPage';
+import { AdminPage } from './pages/Admin/AdminPage';
 import { OnboardingGate } from './features/auth/OnboardingGate';
 import { RequireAuth } from './features/auth/RequireAuth';
+import { RequireAdmin } from './features/auth/RequireAdmin';
 import { usePreferences } from './features/preferences/PreferencesProvider';
 
 // Lazy-loaded: the Lab's window-manager/desktop/terminal bundle is the heaviest part of the app
@@ -94,6 +96,16 @@ export function AppRouter() {
 
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth>
+              <RequireAdmin>
+                <AdminPage />
+              </RequireAdmin>
+            </RequireAuth>
+          }
+        />
         <Route path="/tracks" element={<TracksPage />} />
         <Route path="/tracks/files" element={<TracksFilesPage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />

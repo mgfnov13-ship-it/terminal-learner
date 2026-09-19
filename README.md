@@ -56,6 +56,15 @@ unconfigured backend shows a configuration-unavailable state on account-dependen
    immediately — see `src/features/sync/` for how local and cloud progress reconcile, and the
    project's implementation plan for the full migration/reconciliation rules.
 
+### Administrator access
+
+The read-only `/admin` dashboard is available to `mgfnov13@gmail.com` and
+`m.obaida2021@gmail.com`. Both the route and Supabase row-level security enforce this allowlist.
+Keep email confirmation enabled for these accounts. Apply all pending migrations to the connected
+Supabase project before opening the dashboard. For hosted auth, set the Site URL to
+`https://terminal-learner.vercel.app` and add that origin to Authentication → URL Configuration →
+Redirect URLs, along with `http://localhost:5173/**` for local development.
+
 ## Run locally
 
 ```bash

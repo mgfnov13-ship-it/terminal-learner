@@ -554,6 +554,163 @@ a.btn-secondary,
   color: var(--ink-mute) !important;
 }
 
+/* ---------------------------------------------------------------- admin */
+
+.admin-page {
+  padding-bottom: var(--space-8);
+}
+
+.admin-head .btn-secondary {
+  margin-top: var(--space-4);
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.admin-stat {
+  min-height: 9.5rem;
+}
+
+.admin-stat-value {
+  margin: var(--space-2) 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  color: var(--accent);
+}
+
+.admin-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-5);
+}
+
+.admin-panel {
+  min-width: 0;
+}
+
+.admin-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.admin-panel-heading .section-index {
+  margin-bottom: var(--space-1);
+}
+
+.admin-panel-heading h2 {
+  margin: 0;
+  font-size: var(--text-xl);
+}
+
+.admin-count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+}
+
+.admin-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.admin-table {
+  min-width: 28rem;
+}
+
+.admin-table tbody th {
+  width: auto;
+  min-width: 9rem;
+}
+
+.admin-user-id {
+  display: block;
+  max-width: 15rem;
+  margin-top: var(--space-1);
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ink-mute);
+}
+
+.admin-message-list {
+  display: grid;
+}
+
+.admin-message {
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.admin-message:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.admin-message header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.admin-message h3 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-md);
+}
+
+.admin-message a,
+.admin-message time {
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  overflow-wrap: anywhere;
+}
+
+.admin-message-topic {
+  margin: var(--space-3) 0 var(--space-1) !important;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--accent) !important;
+}
+
+.admin-message-body {
+  margin: 0 !important;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+  color: var(--ink-dim) !important;
+}
+
+.admin-error {
+  margin: 0 0 var(--space-5) !important;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--danger, #b94141);
+  border-radius: var(--radius-sm);
+  color: var(--danger, #b94141) !important;
+}
+
+.admin-denied {
+  max-width: 42rem;
+  margin: clamp(3rem, 12vh, 8rem) auto;
+  padding: var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.admin-denied .btn-secondary {
+  margin-top: var(--space-3);
+}
+
 .stat-rows {
   margin: 0 0 var(--space-4);
   display: grid;
@@ -1985,5 +2142,17 @@ a.btn-secondary,
 
   .site-main h1 {
     font-size: clamp(1.85rem, 3.6vw, 2.5rem);
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .admin-stats,
+  .admin-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-message header {
+    flex-direction: column;
+    gap: var(--space-1);
   }
 }
