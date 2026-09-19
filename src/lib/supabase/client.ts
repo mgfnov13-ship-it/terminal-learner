@@ -1,9 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { productionSupabaseConfig } from './publicConfig';
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Production is connected out of the box. Local .env values can still point development
+// at a separate Supabase project; the embedded key is public and RLS remains the boundary.
+const url = import.meta.env.VITE_SUPABASE_URL || (import.meta.env.PROD ? productionSupabaseConfig.url : undefined);
+const anonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  (import.meta.env.PROD ? productionSupabaseConfig.anonKey : undefined);
 
-/** True only when both env vars are present and non-empty. Never leaks the actual values into UI copy. */
+/** True when this build has Supabase client config. Never leaks values into UI copy. */
 export const isSupabaseConfigured: boolean = Boolean(url && anonKey);
 
 if (!isSupabaseConfigured) {

@@ -34,23 +34,23 @@ npm install
 cp .env.example .env
 ```
 
-Terminal Space runs fully without any further setup: with `.env` empty, the app runs in **local
-development mode** — progress is saved to this browser's local storage only, and every `/app/*`
-route stays reachable so you can keep developing against the learning engine without an account
-backend. This local-mode passthrough only applies in `npm run dev`; a production build with an
-unconfigured backend shows a configuration-unavailable state on account-dependent routes instead
-(see `src/features/auth/RequireAuth.tsx`).
+Production builds connect to the Terminal Academy Supabase project using the public browser key
+checked into `src/lib/supabase/publicConfig.ts`. This keeps production sign-in working without
+Vercel environment variables. Local development without `.env` stays in **browser-only mode**:
+progress is saved to this browser, and account routes remain reachable for engine development.
+Set optional `.env` values only when you want local development to use a separate Supabase project.
 
 ### Connecting a real account backend (Supabase)
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. Copy **Project Settings → API → Project URL** and **anon public key** into `.env`:
+1. Create a separate development project at [supabase.com](https://supabase.com).
+2. Copy **Project Settings → API → Project URL** and **anon public key** into `.env` to override
+   the production project locally:
    ```
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
    ```
    Never put the `service_role` key here or anywhere in client code.
-3. Apply the schema in `supabase/migrations/` (via the Supabase SQL editor, or the Supabase CLI:
+3. Apply the schema in `supabase/migrations/` to that development project (via the Supabase SQL editor, or the Supabase CLI:
    `supabase db push`).
 4. Restart `npm run dev`. Sign-up/sign-in, password reset, and cloud progress sync go live
    immediately — see `src/features/sync/` for how local and cloud progress reconcile, and the
